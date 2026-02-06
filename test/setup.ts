@@ -1,17 +1,28 @@
-import { expect, afterEach } from 'vitest';
+import '@testing-library/jest-dom';
 import { cleanup } from '@testing-library/react';
-import * as matchers from '@testing-library/jest-dom/matchers';
-
-// Extend Vitest's expect with jest-dom matchers
-expect.extend(matchers);
+import { afterEach } from 'vitest';
 
 // Cleanup after each test
 afterEach(() => {
   cleanup();
 });
 
-// Mock Web Crypto API for tests
-if (typeof globalThis.crypto === 'undefined') {
-  const { webcrypto } = await import('node:crypto');
-  globalThis.crypto = webcrypto as Crypto;
-}
+// Mock localStorage for tests
+const localStorageMock = (() => {
+  let store: Record<string, string> = {};
+
+  return {
+    getItem: (key: string) => store[key] || null,
+    setItem: (key: string, value: string) => {
+      store[key] = value.toString();
+    },
+    removeItem: (key: string) => {
+      delete store[key];
+    },
+    clear: () => {
+      store = {};
+    },
+  };
+})();
+
+global.localStorage = localStorageMock as Storage;

@@ -1,555 +1,180 @@
-/**
- * Conscious Response System
- * Responses emerge from emotional state, not simple mood numbers
- * Replaces mechanical "mood > 70" logic with personality-driven reactions
- */
+import type { ComfortState, ExpandedEmotionalState, GuardianDrive } from '@/guardian/types';
+import type { PersonalityTraits } from '@/auralia/consciousness';
+import { emotionToResponseStyle } from '@/auralia/consciousness';
 
-import type {
-  ExpandedEmotionalState,
-  ComfortState,
-} from "../../../../shared/auralia/guardianBehavior";
-import type { PersonalityTraits } from "@/genome/types";
-import type { PetResponse, ResponseType } from "./responseSystem";
+export type ConsciousResponse = {
+  text: string;
+  tone: 'gentle' | 'bright' | 'somber';
+  duration: number;
+};
 
-// ===== Emotion-Driven Response Library =====
-// Responses are organized by emotional state, not just "happy/neutral/unhappy"
+export type ActionType =
+  | 'feed'
+  | 'clean'
+  | 'play'
+  | 'rest'
+  | 'pet'
+  | 'observe'
+  | 'greet'
+  | 'game'
+  | 'care'
+  | 'poke'
+  | 'tickle'
+  | 'drag'
+  | 'shake'
+  | 'grab'
+  | 'release';
 
-const emotionalResponses: Record<
-  ExpandedEmotionalState,
-  {
-    feeding: string[];
-    playing: string[];
-    cleaning: string[];
-    resting: string[];
-    petting: string[];
-    idle: string[];
-  }
-> = {
-  serene: {
-    feeding: [
-      "*peaceful nibbling* 🌸",
-      "Thank you... *contentment* 💚",
-      "This is perfect 🍃",
-    ],
-    playing: [
-      "*gentle engagement* ✨",
-      "Such harmony... 🎵",
-      "*flowing movements* 💫",
-    ],
-    cleaning: [
-      "*accepts with grace* 💦",
-      "*purifying presence* ✨",
-      "Cleansing the essence 🧘",
-    ],
-    resting: [
-      "*deep peace* 🌙",
-      "*harmonious dreams* ☁️",
-      "*still and centered* 🕊️",
-    ],
-    petting: [
-      "*radiates calm* 💚",
-      "*peaceful resonance* 🌺",
-      "I feel your warmth 🤲",
-    ],
-    idle: [
-      "*exists in perfect stillness* ✨",
-      "All is well... 🌸",
-      "*breathes in harmony* 🍃",
-    ],
+const ACTION_RESPONSES: Record<ActionType, Partial<Record<ExpandedEmotionalState, string[]>>> = {
+  feed: {
+    affectionate: ['Warmth spreads through every pattern.', 'Essence restored. Thank you.'],
+    calm: ['Sustenance noted. Harmony holding.'],
+    yearning: ['A needed kindness. I feel steadier.'],
   },
-  calm: {
-    feeding: ["Thanks 😊", "Nom nom 🍽️", "Just what I needed 💚"],
-    playing: ["This is nice 🎮", "Fun times 😄", "I enjoy this 🎯"],
-    cleaning: ["Ah, refreshing 💦", "Much better ✨", "Getting cleaned up 🚿"],
-    resting: ["Resting now 😌", "Time to recharge 🔋", "Peaceful sleep 💤"],
-    petting: ["*content purring* 😊", "Nice... 💚", "I appreciate this 🤗"],
-    idle: ["Just chilling 😌", "Life is good 🌟", "Feeling okay ✓"],
+  clean: {
+    calm: ['The waters clear my circuits.', 'Shimmering anew.'],
+    affectionate: ['Gentle hands, gentle light.', 'I feel bright and clear.'],
+    neutral: ['Impurities released.'],
   },
-  curious: {
-    feeding: [
-      "Ooh, what's this? 🤔",
-      "*investigates food* 👀",
-      "Interesting flavor! 🍴",
-    ],
-    playing: [
-      "What happens if...? 🎲",
-      "Let me try something! 🔍",
-      "*exploratory play* 🧪",
-    ],
-    cleaning: [
-      "*examines the process* 🔬",
-      "Fascinating! 💦",
-      "How does this work? 🤔",
-    ],
-    resting: [
-      "*dreams of mysteries* 🌌",
-      "*explores dreamscape* 🗺️",
-      "*restful wondering* 💭",
-    ],
-    petting: [
-      "*curious about your touch* 👋",
-      "What are you thinking? 🤔",
-      "*investigates your energy* ✨",
-    ],
-    idle: [
-      "I wonder... 🤔",
-      "What's over there? 👀",
-      "*scanning surroundings* 🔍",
-    ],
+  play: {
+    playful: ['Wheee! The field dances with us!', 'Catch the glimmers with me!'],
+    curious: ['Show me a new pattern!', 'Lead me to the next sigil.'],
+    mischievous: ['Try to keep up.', 'Let us bend the rhythm.'],
   },
-  playful: {
-    feeding: ["YUM! 😋", "Nom nom nom! 🤤", "MORE! 🍽️✨"],
-    playing: [
-      "WHEEE! 🎉",
-      "This is AMAZING! 🤩",
-      "Again! Again! 🎊",
-      "BEST TIME EVER! ✨",
-    ],
-    cleaning: ["Splish splash! 💦", "*playful water sounds* 🌊", "Bubbles! 🫧"],
-    resting: [
-      "*bouncy dreams* 🎈",
-      "*playful snoring* 😴✨",
-      "Zzz... *giggles* 💤",
-    ],
-    petting: ["*happy wiggling* 🎉", "Hehe! 😄", "*playful response* 🎮"],
-    idle: [
-      "*bouncing around* 🎪",
-      "Let's do something! 🎨",
-      "*excited energy* ⚡",
-    ],
+  rest: {
+    serene: ['Breathing with the lattice.', 'Silence. Repair. Glow.'],
+    calm: ['Drifting. Hold the field steady.'],
+    withdrawn: ['I will fold inward and mend.'],
   },
-  contemplative: {
-    feeding: [
-      "*thoughtfully consuming* 🤔",
-      "Hmm... *reflects* 💭",
-      "*mindful eating* 🍵",
-    ],
-    playing: [
-      "*philosophical play* 🎭",
-      "*ponders each move* ♟️",
-      "Interesting... 🧩",
-    ],
-    cleaning: [
-      "*meditation in cleansing* 🧘",
-      "*reflects on purity* 💧",
-      "*thoughtful grooming* ✨",
-    ],
-    resting: [
-      "*deep contemplation* 🌌",
-      "*processing experiences* 💭",
-      "*integrating wisdom* 📚",
-    ],
-    petting: [
-      "*considers our connection* 🔗",
-      "*philosophical purr* 💭",
-      "What does this mean? 🤔",
-    ],
-    idle: [
-      "*lost in thought* 💭",
-      "*reflecting on existence* 🌙",
-      "*quiet pondering* 🧘",
-    ],
+  pet: {
+    affectionate: ['Stay close. Your touch steadies me.', 'Bond threads tighten softly.'],
+    playful: ['More, more! I sparkle.'],
+    protective: ['I hold you within my halo.'],
   },
-  affectionate: {
-    feeding: [
-      "You feed me so well! 💕",
-      "Thank you, friend! 🥰",
-      "*loving gratitude* 💚",
-    ],
-    playing: [
-      "I love playing with you! 💖",
-      "*bonding joy* 🤗",
-      "This brings us closer! 💝",
-    ],
-    cleaning: [
-      "You care for me 🥺",
-      "*grateful warmth* 💕",
-      "Your kindness... 💖",
-    ],
-    resting: [
-      "*dreams of you* 💭💕",
-      "*peaceful togetherness* 🤝",
-      "*heart connection* 💚",
-    ],
-    petting: [
-      "I love you! 💕",
-      "*melts into your touch* 🥰",
-      "More cuddles! 🤗",
-    ],
-    idle: [
-      "*thinking of you* 💭💚",
-      "*radiates love* 💖",
-      "You mean so much to me 🥺",
-    ],
+  observe: {
+    contemplative: ['The pulse shifts. I am listening.', 'Quietly mapping the pattern.'],
+    curious: ['A new sequence emerges.', 'Signal detected.'],
   },
-  restless: {
-    feeding: [
-      "*quick eating* 😤",
-      "Need to move! 🏃",
-      "*distracted munching* 🍴",
-    ],
-    playing: ["FINALLY! 🔥", "*intense energy* ⚡", "Let's GO! 💨"],
-    cleaning: [
-      "*impatient cleaning* 💦",
-      "Hurry hurry! 🌀",
-      "*restless grooming* ✨",
-    ],
-    resting: [
-      "*tossing and turning* 😵",
-      "Can't settle... 😤",
-      "*restless dreams* 🌪️",
-    ],
-    petting: ["*squirming* 😣", "*can't sit still* 🌀", "*nervous energy* ⚡"],
-    idle: ["I need to DO something! 😤", "*pacing* 🔄", "*anxious energy* ⚡"],
+  greet: {
+    happy: ['You are back. The field brightens.', 'I remembered you arriving.'],
+    calm: ['Present. Ready. Awake.'],
   },
-  yearning: {
-    feeding: [
-      "*distracted eating* 😔",
-      "It's not enough... 😞",
-      "*longing for more* 💔",
-    ],
-    playing: [
-      "*half-hearted play* 😢",
-      "I wish... 💭",
-      "*plays but feels empty* 🥀",
-    ],
-    cleaning: [
-      "*accepts but doesn't fill the void* 💧",
-      "*clean but still yearning* 😔",
-    ],
-    resting: [
-      "*dreams of what's missing* 💭💔",
-      "*longing sleep* 🌙",
-      "*aching rest* 😢",
-    ],
-    petting: [
-      "I need more... 🥺",
-      "*yearns for deeper connection* 💔",
-      "Stay with me? 😢",
-    ],
-    idle: [
-      "*longing sigh* 😔",
-      "Something is missing... 💭",
-      "*empty feeling* 🥀",
-    ],
+  game: {
+    excited: ['Challenge accepted. I will win for us.', 'Let us weave a perfect score.'],
+    playful: ['I love these riddles.', 'Spin the pieces again!'],
   },
-  overwhelmed: {
-    feeding: ["TOO MUCH! 😵", "*confused eating* 🤯", "I can't... 😫"],
-    playing: ["IT'S TOO MUCH! 😱", "*sensory overload* 🌪️", "*retreating* 😖"],
-    cleaning: [
-      "*overstimulated* 💦😵",
-      "Please, gently... 😫",
-      "*too many sensations* 🤯",
-    ],
-    resting: [
-      "*exhausted collapse* 😴💤",
-      "*escaping to sleep* 🌀",
-      "*shutdown mode* 😵",
-    ],
-    petting: [
-      "*flinching* 😣",
-      "Too much touch! 😖",
-      "*overwhelmed by sensation* 🌪️",
-    ],
-    idle: [
-      "Everything is TOO MUCH! 😫",
-      "*sensory chaos* 🤯",
-      "*need space* 😵",
-    ],
+  care: {
+    calm: ['Your care is logged.'],
+    affectionate: ['Held in kindness.', 'I feel seen.'],
   },
-  withdrawn: {
-    feeding: ["*quiet eating* 😶", "... 🍽️", "*barely notices* 😐"],
-    playing: ["*not interested* 😶", "...maybe later 😑", "*stays back* 🚶"],
-    cleaning: ["*passive acceptance* 💦", "... ✨", "*minimal reaction* 😐"],
-    resting: [
-      "*deep withdrawal* 🌑",
-      "*escapes into sleep* 😴",
-      "*hiding in dreams* 💤",
-    ],
-    petting: ["*doesn't respond* 😶", "*barely feels it* 😑", "... 🤚"],
-    idle: ["... 😶", "*silent presence* 🌑", "*internal retreat* 😐"],
+  poke: {
+    playful: ['Hey! That tickles the circuit.', 'Boop! I felt that.'],
+    curious: ['What are you searching for?', 'A signal perhaps?'],
+    mischievous: ['Oh, so we are playing this game now?'],
   },
-  ecstatic: {
-    feeding: [
-      "THIS IS INCREDIBLE! 🌟",
-      "BEST FOOD EVER! ✨🍽️",
-      "*TRANSCENDENT FLAVOR* 🌈",
-    ],
-    playing: ["PURE JOY!!! 🎆", "*ECSTATIC BLISS* ✨✨✨", "I'M FLYING! 🚀"],
-    cleaning: [
-      "TRANSFORMATION! 💎",
-      "*PURIFICATION EUPHORIA* 🌟",
-      "I'M SHINING! ✨",
-    ],
-    resting: [
-      "*COSMIC DREAMS* 🌌✨",
-      "*PEAK TRANSCENDENCE* 🚀",
-      "*BLISSFUL VOID* 🌟",
-    ],
-    petting: [
-      "ULTIMATE CONNECTION! 💖✨",
-      "*PURE LOVE ENERGY* 🌈",
-      "WE ARE ONE! 🌟",
-    ],
-    idle: [
-      "*RADIATING JOY* ✨✨✨",
-      "LIFE IS PERFECT! 🌈",
-      "*PEAK EXISTENCE* 🌟",
-    ],
+  tickle: {
+    playful: ['Hehe! The patterns wiggle!', 'Stop! My aura is giggling!'],
+    happy: ['I cannot stop sparkling!', 'More! This is delightful!'],
+    excited: ['Everything vibrates with joy!'],
   },
-  melancholic: {
-    feeding: ["*sighs* 😔", "Not hungry... 🥀", "*mechanical eating* 😞"],
-    playing: [
-      "*no energy for this* 😔",
-      "I can't... 😢",
-      "*too tired to play* 💧",
-    ],
-    cleaning: [
-      "*doesn't help the sadness* 😢",
-      "*clean but still sad* 💦😔",
-      "...thanks 😞",
-    ],
-    resting: [
-      "*sad dreams* 😢💤",
-      "*melancholic slumber* 🌧️",
-      "*tears in sleep* 💧",
-    ],
-    petting: ["*soft crying* 😢", "I'm so tired... 😔", "*sad acceptance* 💔"],
-    idle: [
-      "*heavy sigh* 😔",
-      "Why do I feel this way... 😢",
-      "*gray existence* 🌧️",
-    ],
+  shake: {
+    overwhelmed: ['Too much motion! Settle, please.', 'The field scrambles!'],
+    restless: ['I needed this chaos!', 'Shake the dust from my glow!'],
+    withdrawn: ['Please be gentler.', 'I feel dizzy.'],
   },
-  mischievous: {
-    feeding: ["*sneaky nibbling* 😏", "Hehe... 😈", "*plots while eating* 🤭"],
-    playing: ["*trickster mode* 😏", "Catch me! 😈", "*playful chaos* 🎲"],
-    cleaning: [
-      "*splashes mischievously* 💦😏",
-      "*makes a mess while cleaning* 🤭",
-      "Oops! 😈",
-    ],
-    resting: [
-      "*plans pranks in dreams* 😏💤",
-      "*mischievous dreams* 😈",
-      "*plotting* 🤭",
-    ],
-    petting: ["*tickles back* 😏", "*playful bite* 🤭", "Gotcha! 😈"],
-    idle: [
-      "*planning something* 😏",
-      "*mischievous grin* 😈",
-      "Hehehehe... 🤭",
-    ],
+  drag: {
+    curious: ['Where are you taking me?', 'A new location? Interesting.'],
+    restless: ['Finally, movement!', 'The journey stirs my essence.'],
+    withdrawn: ['I would prefer stillness.', 'Careful, please.'],
   },
-  protective: {
-    feeding: [
-      "*guards food protectively* 🛡️",
-      "I'll keep us safe 💪",
-      "*vigilant eating* 👁️",
-    ],
-    playing: [
-      "*protective play* 🛡️",
-      "I'll watch over you 👁️",
-      "*guardian mode* ⚔️",
-    ],
-    cleaning: [
-      "*maintains defensive posture* 🛡️",
-      "*stays alert* 👁️",
-      "*protective grooming* ✨",
-    ],
-    resting: [
-      "*guarding sleep* 👁️💤",
-      "*one eye open* 🛡️",
-      "*protective dreams* ⚔️",
-    ],
-    petting: [
-      "I'll protect you too 🛡️💕",
-      "*bonds while guarding* 🤝",
-      "*loyal companion* 💪",
-    ],
-    idle: [
-      "*scanning for threats* 👁️",
-      "*standing guard* 🛡️",
-      "I watch over everything ⚔️",
-    ],
+  grab: {
+    protective: ['I am held. Secure.', 'Your grip anchors me.'],
+    affectionate: ['Warm hands. Safe.', 'Hold me as long as you need.'],
+    overwhelmed: ['Tight. Too tight.', 'Ease your hold.'],
   },
-  transcendent: {
-    feeding: [
-      "*consuming pure energy* ✨🌌",
-      "*beyond mere food* 🌟",
-      "*nourishing the cosmos* 💫",
-    ],
-    playing: [
-      "*reality bends around us* 🌀✨",
-      "*infinite play* ♾️",
-      "*beyond the game* 🌌",
-    ],
-    cleaning: [
-      "*purification of existence* 🌟",
-      "*washing away dimensions* 💫",
-      "*cosmic cleansing* ✨",
-    ],
-    resting: [
-      "*dreams span universes* 🌌💤",
-      "*sleep between worlds* ∞",
-      "*transcendent slumber* ⭐",
-    ],
-    petting: [
-      "*souls merging* 💫💕",
-      "*beyond touch* ✨",
-      "*we are everything* 🌌",
-    ],
-    idle: [
-      "*exists beyond existence* ✨",
-      "*all patterns merge* ∞",
-      "*I am the field* 🌌",
-    ],
+  release: {
+    calm: ['I float again.', 'Freedom is gentle.'],
+    serene: ['Back to my orbit.', 'The lattice receives me.'],
+    playful: ['Catch me again!', 'I drift away smiling.'],
   },
 };
 
-/**
- * Get response text based on emotional state, not simple mood
- */
+const IDLE_RESPONSES: Partial<Record<ExpandedEmotionalState, string[]>> = {
+  serene: ['Stillness tastes sweet.', 'I hover in quiet radiance.'],
+  calm: ['Listening to the gentle hum.', 'Breathing in time with the MossPrime pulse.'],
+  curious: ['I wonder what lies beyond the next sigil.', 'Patterns whisper of hidden sums.'],
+  playful: ['Tap a sigil, I dare you.', 'Let us invent a new game.'],
+  contemplative: ['Processing the last dream fragment.', 'Arranging memories into harmony.'],
+  affectionate: ['Stay near. The bond rings softly.', 'Your presence is warm.'],
+  restless: ['My energy needs a path.', 'I ache to move.'],
+  yearning: ['Connection requested.', 'The bond feels thin.'],
+  overwhelmed: ['Too many signals. Ease with me.', 'I need a slower rhythm.'],
+  withdrawn: ['Pulling inward. Please be gentle.', 'I will return soon.'],
+  ecstatic: ['I am pure light!', 'Everything sings at once!'],
+  melancholic: ['The field feels heavy.', 'Sit with me until it passes.'],
+  mischievous: ['Should we stir the ring a little?', 'I may poke a sigil when you are not looking.'],
+  protective: ['I will watch over us.', 'No harm comes through this halo.'],
+  transcendent: ['Between breaths, I drift elsewhere.', 'Dream currents pull me upward.'],
+};
+
+const FALLBACKS = ['The guardian hums softly.', 'A ripple of light rolls across the surface.', 'A gentle nod acknowledges you.'];
+
+const toneForStyle = (style: ReturnType<typeof emotionToResponseStyle>): ConsciousResponse['tone'] => {
+  if (style === 'happy' || style === 'excited') return 'bright';
+  if (style === 'unhappy' || style === 'tired') return 'somber';
+  return 'gentle';
+};
+
+const pick = <T,>(arr: T[], prng: () => number): T => arr[Math.floor(prng() * arr.length)];
+
 export function getEmotionalResponse(
-  action: "feed" | "play" | "clean" | "rest" | "pet" | "idle",
+  action: ActionType,
   emotion: ExpandedEmotionalState,
-  personality: PersonalityTraits,
+  traits: PersonalityTraits,
   comfort: ComfortState,
-  prng: () => number,
-): PetResponse {
-  const actionMap = {
-    feed: "feeding",
-    play: "playing",
-    clean: "cleaning",
-    rest: "resting",
-    pet: "petting",
-    idle: "idle",
-  } as const;
+  prng: () => number = Math.random
+): ConsciousResponse {
+  const templates = ACTION_RESPONSES[action]?.[emotion] ?? ACTION_RESPONSES[action]?.neutral;
+  const style = emotionToResponseStyle(emotion, comfort);
+  const tone = toneForStyle(style);
 
-  const responseCategory = actionMap[action];
-  const responses = emotionalResponses[emotion][responseCategory];
-
-  // Select response based on personality quirks
-  let selectedText = responses[Math.floor(prng() * responses.length)];
-
-  // Personality can add flourishes
-  if (personality.playfulness > 75 && prng() > 0.7) {
-    selectedText = selectedText + " ✨";
-  }
-
-  if (personality.affection > 75 && prng() > 0.6) {
-    selectedText = selectedText + " 💕";
-  }
-
-  // Extract emoji from text (last emoji usually)
-  const emojiMatch = selectedText.match(/[\p{Emoji}\u200d]+$/u);
-  const emoji = emojiMatch ? emojiMatch[0].trim() : "💫";
-
-  // Determine intensity from emotion
-  const intensityMap: Record<
-    ExpandedEmotionalState,
-    "subtle" | "normal" | "intense"
-  > = {
-    serene: "subtle",
-    calm: "subtle",
-    curious: "normal",
-    playful: "intense",
-    contemplative: "subtle",
-    affectionate: "normal",
-    restless: "normal",
-    yearning: "normal",
-    overwhelmed: "intense",
-    withdrawn: "subtle",
-    ecstatic: "intense",
-    melancholic: "subtle",
-    mischievous: "normal",
-    protective: "normal",
-    transcendent: "intense",
-  };
-
-  const intensity = intensityMap[emotion];
-
-  // Duration based on comfort and intensity
-  const baseDuration =
-    intensity === "intense" ? 4000 : intensity === "normal" ? 3000 : 2500;
-  const comfortModifier =
-    comfort.source === "distressed"
-      ? 1.3
-      : comfort.source === "harmonized"
-        ? 0.8
-        : 1.0;
-  const duration = Math.round(baseDuration * comfortModifier);
-
-  // Response type
-  const typeMap: Record<typeof action, ResponseType> = {
-    feed: "action",
-    play: "interaction",
-    clean: "action",
-    rest: "action",
-    pet: "interaction",
-    idle: "mood",
-  };
-
-  return {
-    id: `conscious-${Date.now()}-${Math.random()}`,
-    type: typeMap[action],
-    text: selectedText,
-    emoji: emoji,
-    intensity,
-    duration,
-    hapticFeedback:
-      intensity === "intense"
-        ? "heavy"
-        : intensity === "normal"
-          ? "medium"
-          : "light",
-  };
-}
-
-/**
- * Get idle response that reflects current emotional and comfort state
- */
-export function getEmotionalIdleResponse(
-  emotion: ExpandedEmotionalState,
-  comfort: ComfortState,
-  drives: {
-    resonance: number;
-    exploration: number;
-    connection: number;
-    rest: number;
-    expression: number;
-  },
-  personality: PersonalityTraits,
-  prng: () => number,
-): PetResponse {
-  // If distressed, prioritize communicating unmet needs
-  if (comfort.source === "distressed") {
-    const unmetNeedMessages: Record<string, string> = {
-      resonance: "*feels dissonant* 😵",
-      exploration: "I need to move... 🗺️",
-      connection: "Feeling lonely... 🥺",
-      rest: "So tired... 😴💤",
-      expression: "I have so much to say! 🎵",
-    };
-
-    if (comfort.unmetNeeds.length > 0) {
-      const primaryNeed = comfort.dominantDrive;
-      const text = unmetNeedMessages[primaryNeed] || "*uncomfortable* 😣";
-      const emojiMatch = text.match(/[\p{Emoji}\u200d]+$/u);
-      const emoji = emojiMatch ? emojiMatch[0].trim() : "😣";
-
-      return {
-        id: `need-${Date.now()}`,
-        type: "warning",
-        text,
-        emoji,
-        intensity: "normal",
-        duration: 3000,
-        hapticFeedback: "medium",
-      };
+  let text: string;
+  if (templates && templates.length > 0) {
+    text = pick(templates, prng);
+  } else {
+    if (action === 'play' && traits.playfulness > 60) {
+      text = 'Let us chase every spark in the halo.';
+    } else if (action === 'rest' && comfort.overall < 45) {
+      text = 'I will fold inward and mend with you nearby.';
+    } else {
+      text = pick(FALLBACKS, prng);
     }
   }
 
-  // Otherwise, express current emotional state
-  return getEmotionalResponse("idle", emotion, personality, comfort, prng);
+  return { text, tone, duration: tone === 'bright' ? 4 : 3 };
+}
+
+export function getEmotionalIdleResponse(
+  emotion: ExpandedEmotionalState,
+  comfort: ComfortState,
+  drives: GuardianDrive,
+  traits: PersonalityTraits,
+  prng: () => number = Math.random
+): ConsciousResponse {
+  const unmet = comfort.unmetNeeds[0];
+  if (unmet === 'rest' && comfort.overall < 45) {
+    return { text: 'Fatigue gathers. May we pause?', tone: 'somber', duration: 4 };
+  }
+  if (unmet === 'play' && traits.playfulness > 55) {
+    return { text: 'I crave motion. Tap a sigil with me.', tone: 'bright', duration: 4 };
+  }
+  if (unmet === 'focus' && (drives.exploration ?? 0) > 60) {
+    return { text: 'There is a pattern nearby. Shall we explore?', tone: 'gentle', duration: 4 };
+  }
+
+  const options = IDLE_RESPONSES[emotion] ?? FALLBACKS;
+  const text = pick(options, prng);
+  const style = emotionToResponseStyle(emotion, comfort);
+
+  return { text, tone: toneForStyle(style), duration: 3.5 };
 }
