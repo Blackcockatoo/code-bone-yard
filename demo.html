@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meta-Pet Design System - Cosmic Companion Interface</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Additional demo-specific styles */
+    .demo-header {
+      text-align: center;
+      padding: var(--space-3xl) var(--space-xl);
+      position: relative;
+    }
+
+    .demo-header h1 {
+      font-size: 3.5rem;
+      margin-bottom: var(--space-md);
+      animation: fade-in-up 0.8s ease-out;
+    }
+
+    .demo-header p {
+      font-size: 1.25rem;
+      color: var(--accent-mystic);
+      max-width: 600px;
+      margin: 0 auto var(--space-xl);
+      animation: fade-in-up 0.8s ease-out 0.2s backwards;
+    }
+
+    .demo-section {
+      margin-bottom: var(--space-3xl);
+    }
+
+    .demo-section-title {
+      text-align: center;
+      margin-bottom: var(--space-2xl);
+      padding-bottom: var(--space-lg);
+      border-bottom: 2px solid var(--glass-border);
+    }
+
+    .tier-badge {
+      display: inline-block;
+      padding: var(--space-xs) var(--space-md);
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-left: var(--space-sm);
+      vertical-align: middle;
+    }
+
+    .tier-free { background: linear-gradient(135deg, #10b981 0%, #34d399 100%); color: white; }
+    .tier-premium { background: linear-gradient(135deg, #6b46c1 0%, #a78bfa 100%); color: white; }
+    .tier-mythic { background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); color: white; }
+
+    .demo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: var(--space-xl);
+      margin-bottom: var(--space-2xl);
+    }
+
+    @media (max-width: 768px) {
+      .demo-grid {
+        grid-template-columns: 1fr;
+      }
+      .demo-header h1 {
+        font-size: 2.5rem;
+      }
+    }
+
+    /* Interactive particle generation */
+    .interactive-particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    .cursor-particle {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: var(--accent-celestial);
+      border-radius: 50%;
+      pointer-events: none;
+      animation: cursor-particle-fade 1s ease-out forwards;
+      box-shadow: 0 0 10px var(--accent-celestial);
+    }
+
+    @keyframes cursor-particle-fade {
+      0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(var(--tx), var(--ty)) scale(0);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Interactive particle container -->
+  <div class="interactive-particles" id="particleContainer"></div>
+
+  <!-- Header -->
+  <header class="demo-header">
+    <h1>Meta-Pet Design System</h1>
+    <p>A cosmic, mystical interface for nurturing digital companions through the Temple With Curtains philosophy</p>
+  </header>
+
+  <div class="container">
+
+    <!-- Section: Genome Display -->
+    <section class="demo-section">
+      <div class="demo-section-title">
+        <h2>Genome Display <span class="tier-badge tier-free">Free</span></h2>
+        <p>Showcase your companion's genetic makeup with beautiful visualizations</p>
+      </div>
+
+      <div class="genome-display glass">
+        <div class="basic-traits">
+          <div class="physical">
+            <h3>Appearance</h3>
+            <p>Ethereal Wisp</p>
+            <div class="colors">
+              <div style="background: linear-gradient(135deg, #a78bfa 0%, #c4b5fd 100%);"></div>
+              <div style="background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);"></div>
+            </div>
+            <p>Nebula pattern</p>
+          </div>
+
+          <div class="personality">
+            <h3>Personality</h3>
+            <p>Contemplative Wanderer</p>
+            <div class="stat-bars">
+              <div class="stat-bar">
+                <span>Energy</span>
+                <div class="bar">
+                  <div class="fill" style="width: 75%;"></div>
+                </div>
+              </div>
+              <div class="stat-bar">
+                <span>Curiosity</span>
+                <div class="bar">
+                  <div class="fill" style="width: 90%;"></div>
+                </div>
+              </div>
+              <div class="stat-bar">
+                <span>Affection</span>
+                <div class="bar">
+                  <div class="fill" style="width: 65%;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Premium Features -->
+        <div class="trait-breakdown">
+          <h4>Trait Sources <span class="tier-badge tier-premium">Premium</span></h4>
+          <p class="explanation">
+            Your companion's traits emerge from their unique genetic code, blending cosmic elements to create a one-of-a-kind personality.
+          </p>
+        </div>
+
+        <div class="element-web">
+          <svg width="200" height="200" viewBox="0 0 200 200">
+            <!-- Element web visualization -->
+            <defs>
+              <radialGradient id="nodeGradient">
+                <stop offset="0%" style="stop-color:#a78bfa;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#6b46c1;stop-opacity:0.5" />
+              </radialGradient>
+            </defs>
+
+            <!-- Connections -->
+            <line x1="100" y1="50" x2="150" y2="100" stroke="#6b46c1" stroke-width="2" opacity="0.5"/>
+            <line x1="150" y1="100" x2="100" y2="150" stroke="#6b46c1" stroke-width="2" opacity="0.5"/>
+            <line x1="100" y1="150" x2="50" y2="100" stroke="#6b46c1" stroke-width="2" opacity="0.5"/>
+            <line x1="50" y1="100" x2="100" y2="50" stroke="#6b46c1" stroke-width="2" opacity="0.5"/>
+
+            <!-- Nodes -->
+            <circle cx="100" cy="50" r="15" fill="url(#nodeGradient)" stroke="#a78bfa" stroke-width="2"/>
+            <circle cx="150" cy="100" r="15" fill="url(#nodeGradient)" stroke="#a78bfa" stroke-width="2"/>
+            <circle cx="100" cy="150" r="15" fill="url(#nodeGradient)" stroke="#a78bfa" stroke-width="2"/>
+            <circle cx="50" cy="100" r="15" fill="url(#nodeGradient)" stroke="#a78bfa" stroke-width="2"/>
+            <circle cx="100" cy="100" r="20" fill="url(#nodeGradient)" stroke="#c4b5fd" stroke-width="3"/>
+          </svg>
+        </div>
+
+        <div class="bridge-score">
+          <div>Bridge: 12</div>
+          <div>Frontier: 8</div>
+        </div>
+
+        <!-- Mythic Feature -->
+        <div class="raw-dna">
+          <h4>Raw Genome <span class="tier-badge tier-mythic">Mythic</span></h4>
+          <div class="dna-strand red">Red: 101011001101110010110100110111001011010011011100101101001101</div>
+          <div class="dna-strand blue">Blue: 110010110111001011010011011100101101001101110010110100110111</div>
+          <div class="dna-strand black">Black: 010110011101001011101001101100101110100110110010111010011011</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section: Consciousness & Emotions -->
+    <section class="demo-section">
+      <div class="demo-section-title">
+        <h2>Consciousness Display <span class="tier-badge tier-free">Free</span></h2>
+        <p>Monitor your companion's emotional state and inner drives</p>
+      </div>
+
+      <div class="demo-grid">
+        <div class="simple-mood glass">
+          <div class="emoji">😌</div>
+        </div>
+
+        <div class="consciousness-panel glass">
+          <div class="emotion-display">
+            <div class="emoji">🤔</div>
+            <div class="name">Curious</div>
+          </div>
+
+          <div class="drive-meters">
+            <div class="stat-bar">
+              <span>Resonance</span>
+              <div class="bar">
+                <div class="fill" style="width: 85%;"></div>
+              </div>
+            </div>
+            <div class="stat-bar">
+              <span>Exploration</span>
+              <div class="bar">
+                <div class="fill" style="width: 95%;"></div>
+              </div>
+            </div>
+            <div class="stat-bar">
+              <span>Connection</span>
+              <div class="bar">
+                <div class="fill" style="width: 70%;"></div>
+              </div>
+            </div>
+            <div class="stat-bar">
+              <span>Rest</span>
+              <div class="bar">
+                <div class="fill" style="width: 40%;"></div>
+              </div>
+            </div>
+            <div class="stat-bar">
+              <span>Expression</span>
+              <div class="bar">
+                <div class="fill" style="width: 80%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="field-resonance">
+            Field Resonance: 87.3%
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section: Pet Sprite Visualization -->
+    <section class="demo-section">
+      <div class="demo-section-title">
+        <h2>Pet Sprite Visualization <span class="tier-badge tier-free">Free</span></h2>
+        <p>Watch your companion's mood and personality come alive with dynamic animations</p>
+      </div>
+
+      <div id="sprite-container" class="glass" style="min-height: 400px; position: relative;">
+        <!-- Sprite will be injected here by sprite-demo.js -->
+      </div>
+    </section>
+
+    <!-- Section: Ritual Menu -->
+    <section class="demo-section">
+      <div class="demo-section-title">
+        <h2>Interaction Rituals</h2>
+        <p>Connect with your companion through meaningful interactions</p>
+      </div>
+
+      <div class="ritual-menu glass">
+        <button class="available">
+          <span class="icon">🎵</span>
+          <span class="name">Resonate</span>
+        </button>
+        <button class="available">
+          <span class="icon">🎮</span>
+          <span class="name">Play</span>
+        </button>
+        <button class="available">
+          <span class="icon">😴</span>
+          <span class="name">Rest</span>
+        </button>
+        <button class="available">
+          <span class="icon">🍽️</span>
+          <span class="name">Feed</span>
+        </button>
+        <button class="available">
+          <span class="icon">🚿</span>
+          <span class="name">Clean</span>
+        </button>
+        <button class="locked">
+          <span class="icon">🔮</span>
+          <span class="name">Attune</span>
+          <span class="lock">🔒</span>
+        </button>
+        <button class="locked">
+          <span class="icon">🗺️</span>
+          <span class="name">Explore</span>
+          <span class="lock">🔒</span>
+        </button>
+        <button class="locked">
+          <span class="icon">🧘</span>
+          <span class="name">Meditate</span>
+          <span class="lock">🔒</span>
+        </button>
+        <button class="locked">
+          <span class="icon">🎉</span>
+          <span class="name">Celebrate</span>
+          <span class="lock">🔒</span>
+        </button>
+        <button class="locked">
+          <span class="icon">✨</span>
+          <span class="name">Dream Weave</span>
+          <span class="lock">🔒</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Section: Particle Field -->
+    <section class="demo-section">
+      <div class="demo-section-title">
+        <h2>Emotional Particle Field <span class="tier-badge tier-premium">Premium</span></h2>
+        <p>Visualize your companion's emotions through dynamic particle effects</p>
+      </div>
+
+      <div class="particle-field glass" style="min-height: 300px; position: relative;">
+        <!-- Particles will be generated by JavaScript -->
+      </div>
+    </section>
+
+    <!-- Section: Upgrade Prompt -->
+    <section class="demo-section">
+      <div class="demo-section-title">
+        <h2>Non-Punishing Paywalls</h2>
+        <p>Gentle invitations to expand your companion's world</p>
+      </div>
+
+      <div class="upgrade-prompt gentle">
+        <div class="icon">✨</div>
+        <h3>Expand Your Garden</h3>
+        <p>Nurture more souls and deepen your connections. Premium unlocks 5 companion slots, the full emotional spectrum, and advanced evolution stages.</p>
+        <button class="cta-primary">Explore Premium</button>
+        <button class="cta-secondary">Maybe Later</button>
+      </div>
+    </section>
+
+    <!-- Section: Cosmetic Shop -->
+    <section class="demo-section">
+      <div class="demo-section-title">
+        <h2>Aesthetic Collections</h2>
+        <p>Customize your companion's appearance with unique cosmetic packs</p>
+      </div>
+
+      <div class="cosmetic-shop">
+        <div class="packs">
+          <div class="pack">
+            <h3>Base Collection</h3>
+            <div class="preview">
+              <div style="background: linear-gradient(135deg, #6b46c1 0%, #a78bfa 100%);"></div>
+              <div style="background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);"></div>
+              <div style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%);"></div>
+              <div style="background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);"></div>
+            </div>
+            <ul class="features">
+              <li>4 Color palettes</li>
+              <li>2 Pattern types</li>
+              <li>2 Feature sets</li>
+            </ul>
+            <div class="owned">Owned ✓</div>
+          </div>
+
+          <div class="pack">
+            <h3>Celestial Pack</h3>
+            <div class="preview">
+              <div style="background: radial-gradient(circle, #fbbf24 0%, #f59e0b 100%);"></div>
+              <div style="background: radial-gradient(circle, #c4b5fd 0%, #a78bfa 100%);"></div>
+              <div style="background: linear-gradient(135deg, #fef3c7 0%, #fbbf24 100%);"></div>
+            </div>
+            <ul class="features">
+              <li>Radiant Crown accessory</li>
+              <li>Ethereal Halo effect</li>
+              <li>Star Trail animation</li>
+            </ul>
+            <button class="purchase">$2.99</button>
+          </div>
+
+          <div class="pack">
+            <h3>Void Pack</h3>
+            <div class="preview">
+              <div style="background: radial-gradient(circle, #1e1b4b 0%, #0a0118 100%);"></div>
+              <div style="background: linear-gradient(135deg, #312e81 0%, #1e1b4b 100%);"></div>
+              <div style="background: radial-gradient(circle, #4c1d95 0%, #2e1065 100%);"></div>
+            </div>
+            <ul class="features">
+              <li>Dark Matter aesthetics</li>
+              <li>Shadow Aura effect</li>
+              <li>Void Rift animation</li>
+            </ul>
+            <button class="purchase">$2.99</button>
+          </div>
+
+          <div class="pack">
+            <h3>Primal Pack</h3>
+            <div class="preview">
+              <div style="background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);"></div>
+              <div style="background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);"></div>
+              <div style="background: linear-gradient(135deg, #78350f 0%, #92400e 100%);"></div>
+            </div>
+            <ul class="features">
+              <li>Ancient Horns accessory</li>
+              <li>Tail Flame effect</li>
+              <li>Feral Eyes variant</li>
+            </ul>
+            <button class="purchase">$2.99</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    // Generate particles for the particle field
+    function generateParticles() {
+      const particleField = document.querySelector('.particle-field');
+      const particleCount = 25;
+
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+
+        // Random position
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.top = Math.random() * 100 + '%';
+
+        // Random animation delay
+        particle.style.animationDelay = Math.random() * 4 + 's';
+
+        particleField.appendChild(particle);
+      }
+    }
+
+    // Interactive cursor particles
+    let particleTimeout;
+    document.addEventListener('mousemove', (e) => {
+      clearTimeout(particleTimeout);
+      particleTimeout = setTimeout(() => {
+        if (Math.random() > 0.7) { // 30% chance to spawn particle
+          const particle = document.createElement('div');
+          particle.className = 'cursor-particle';
+
+          // Random direction
+          const tx = (Math.random() - 0.5) * 100;
+          const ty = (Math.random() - 0.5) * 100;
+
+          particle.style.setProperty('--tx', tx + 'px');
+          particle.style.setProperty('--ty', ty + 'px');
+          particle.style.left = e.pageX + 'px';
+          particle.style.top = e.pageY + 'px';
+
+          document.getElementById('particleContainer').appendChild(particle);
+
+          // Remove after animation
+          setTimeout(() => particle.remove(), 1000);
+        }
+      }, 50);
+    });
+
+    // Scroll reveal animation
+    function revealOnScroll() {
+      const reveals = document.querySelectorAll('.demo-section');
+
+      reveals.forEach(element => {
+        const elementTop = element.getBoundingClientRect().top;
+        const elementVisible = 150;
+
+        if (elementTop < window.innerHeight - elementVisible) {
+          element.classList.add('scroll-reveal', 'revealed');
+        }
+      });
+    }
+
+    // Initialize
+    window.addEventListener('DOMContentLoaded', () => {
+      generateParticles();
+      revealOnScroll();
+    });
+
+    window.addEventListener('scroll', revealOnScroll);
+
+    // Add button click effects
+    document.querySelectorAll('button').forEach(button => {
+      button.addEventListener('click', function(e) {
+        // Create ripple effect
+        const ripple = document.createElement('span');
+        const rect = this.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        const x = e.clientX - rect.left - size / 2;
+        const y = e.clientY - rect.top - size / 2;
+
+        ripple.style.cssText = `
+          position: absolute;
+          width: ${size}px;
+          height: ${size}px;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.3);
+          left: ${x}px;
+          top: ${y}px;
+          pointer-events: none;
+          animation: ripple-effect 0.6s ease-out;
+        `;
+
+        this.style.position = 'relative';
+        this.style.overflow = 'hidden';
+        this.appendChild(ripple);
+
+        setTimeout(() => ripple.remove(), 600);
+      });
+    });
+
+    // Add ripple animation
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes ripple-effect {
+        0% {
+          transform: scale(0);
+          opacity: 1;
+        }
+        100% {
+          transform: scale(2);
+          opacity: 0;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
+
+  <!-- Sprite Animation Script -->
+  <script type="module" src="sprite-demo.js"></script>
+</body>
+</html>
