@@ -70,13 +70,13 @@ export interface GuardianSaveData {
   focusHistory?: number[];
 }
 
-export const STORAGE_KEY = "auralia_guardian_state";
+export const STORAGE_KEY = 'auralia_guardian_state';
 
 export function saveGuardianState(data: GuardianSaveData): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   } catch (error) {
-    console.error("Failed to save Guardian state:", error);
+    console.error('Failed to save Guardian state:', error);
   }
 }
 
@@ -85,7 +85,7 @@ export function loadGuardianState(): GuardianSaveData | null {
     const saved = localStorage.getItem(STORAGE_KEY);
     return saved ? (JSON.parse(saved) as GuardianSaveData) : null;
   } catch (error) {
-    console.error("Failed to load Guardian state:", error);
+    console.error('Failed to load Guardian state:', error);
     return null;
   }
 }
@@ -94,7 +94,7 @@ export function clearGuardianState(): void {
   try {
     localStorage.removeItem(STORAGE_KEY);
   } catch (error) {
-    console.error("Failed to clear Guardian state:", error);
+    console.error('Failed to clear Guardian state:', error);
   }
 }
 
@@ -107,12 +107,12 @@ export function importGuardianState(json: string): GuardianSaveData | null {
     const data = JSON.parse(json) as GuardianSaveData;
 
     if (!isValidGuardianSaveData(data)) {
-      throw new Error("Invalid Guardian state data");
+      throw new Error('Invalid Guardian state data');
     }
 
     return data;
   } catch (error) {
-    console.error("Failed to import Guardian state:", error);
+    console.error('Failed to import Guardian state:', error);
     return null;
   }
 }
@@ -126,7 +126,7 @@ export function createSnapshot(data: GuardianSaveData): GuardianSaveData {
 
 export function isLocalStorageAvailable(): boolean {
   try {
-    const test = "__localStorage_test__";
+    const test = '__localStorage_test__';
     localStorage.setItem(test, test);
     localStorage.removeItem(test);
     return true;
@@ -138,9 +138,9 @@ export function isLocalStorageAvailable(): boolean {
 function isValidGuardianSaveData(data: GuardianSaveData): boolean {
   return (
     Boolean(data.seedName) &&
-    typeof data.energy === "number" &&
-    typeof data.curiosity === "number" &&
-    typeof data.bond === "number" &&
-    typeof data.health === "number"
+    typeof data.energy === 'number' &&
+    typeof data.curiosity === 'number' &&
+    typeof data.bond === 'number' &&
+    typeof data.health === 'number'
   );
 }

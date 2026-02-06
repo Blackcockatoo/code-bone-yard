@@ -23,7 +23,7 @@ import {
   type GRSState,
   type GRSResult,
   type BreedingPreview,
-} from "./types";
+} from './types';
 
 /**
  * Calculate Lucas number mod 60
@@ -45,12 +45,8 @@ export function lucasMod60(n: number): number {
 /**
  * Get a slice from a sequence string, wrapping around
  */
-export function getSlice(
-  seq: string,
-  index: number,
-  length: number = 5,
-): string {
-  let result = "";
+export function getSlice(seq: string, index: number, length: number = 5): string {
+  let result = '';
   for (let i = 0; i < length; i++) {
     result += seq[(index + i) % seq.length];
   }
@@ -92,31 +88,31 @@ export function getGate(days: number): Gate {
  * Decode RED sequence to physical traits
  */
 export function decodeRedTraits(seq: string): AstroPhysicalTraits {
-  const digits = seq.split("").map(Number);
-  const sizes = ["Tiny", "Small", "Medium", "Medium", "Large", "Large", "Huge"];
+  const digits = seq.split('').map(Number);
+  const sizes = ['Tiny', 'Small', 'Medium', 'Medium', 'Large', 'Large', 'Huge'];
   const patterns = [
-    "Solid",
-    "Solid",
-    "Spots",
-    "Spots",
-    "Spots",
-    "Stripes",
-    "Stripes",
-    "Stripes",
-    "Gradient",
-    "Gradient",
+    'Solid',
+    'Solid',
+    'Spots',
+    'Spots',
+    'Spots',
+    'Stripes',
+    'Stripes',
+    'Stripes',
+    'Gradient',
+    'Gradient',
   ];
   const accents = [
-    "Single eye",
-    "Double eyes",
-    "Triple eyes",
-    "Horns",
-    "Wings",
-    "Tail curl",
-    "Spikes",
-    "Glow",
-    "Antennae",
-    "Crown",
+    'Single eye',
+    'Double eyes',
+    'Triple eyes',
+    'Horns',
+    'Wings',
+    'Tail curl',
+    'Spikes',
+    'Glow',
+    'Antennae',
+    'Crown',
   ];
 
   return {
@@ -132,30 +128,30 @@ export function decodeRedTraits(seq: string): AstroPhysicalTraits {
  * Decode BLUE sequence to personality traits
  */
 export function decodeBlueTraits(seq: string): AstroPersonalityTraits {
-  const digits = seq.split("").map(Number);
+  const digits = seq.split('').map(Number);
   const social = [
-    "Very Shy",
-    "Shy",
-    "Shy",
-    "Reserved",
-    "Neutral",
-    "Neutral",
-    "Friendly",
-    "Outgoing",
-    "Very Outgoing",
-    "Extroverted",
+    'Very Shy',
+    'Shy',
+    'Shy',
+    'Reserved',
+    'Neutral',
+    'Neutral',
+    'Friendly',
+    'Outgoing',
+    'Very Outgoing',
+    'Extroverted',
   ];
   const intelligence = [
-    "Slow learner",
-    "Below avg",
-    "Average",
-    "Average",
-    "Average",
-    "Above avg",
-    "Smart",
-    "Very smart",
-    "Genius",
-    "Prodigy",
+    'Slow learner',
+    'Below avg',
+    'Average',
+    'Average',
+    'Average',
+    'Above avg',
+    'Smart',
+    'Very smart',
+    'Genius',
+    'Prodigy',
   ];
 
   return {
@@ -171,32 +167,32 @@ export function decodeBlueTraits(seq: string): AstroPersonalityTraits {
  * Decode BLACK sequence to latent/hidden traits
  */
 export function decodeBlackTraits(seq: string): AstroLatentTraits {
-  const digits = seq.split("").map(Number);
+  const digits = seq.split('').map(Number);
   const rareTraits = [
-    "None",
-    "Starlight Glow",
-    "Phase Shift",
-    "Telepathy",
-    "Time Sense",
-    "Astral Form",
-    "Cosmic Echo",
-    "Void Walk",
-    "Star Born",
-    "Transcendent",
+    'None',
+    'Starlight Glow',
+    'Phase Shift',
+    'Telepathy',
+    'Time Sense',
+    'Astral Form',
+    'Cosmic Echo',
+    'Void Walk',
+    'Star Born',
+    'Transcendent',
   ];
   const secretAbilities = [
-    "None",
-    "Mind Read",
-    "Heal",
-    "Teleport",
-    "Invisibility",
-    "Flight",
-    "Shield",
-    "Boost",
-    "Transform",
-    "Ascend",
+    'None',
+    'Mind Read',
+    'Heal',
+    'Teleport',
+    'Invisibility',
+    'Flight',
+    'Shield',
+    'Boost',
+    'Transform',
+    'Ascend',
   ];
-  const evolutionPaths = ["Path A", "Path B", "Path C"];
+  const evolutionPaths = ['Path A', 'Path B', 'Path C'];
 
   return {
     mutationChance: digits[0],
@@ -258,17 +254,12 @@ export function generateBirthChart(birthTime: Date): BirthChart {
 /**
  * Generate daily horoscope based on birth chart and current time
  */
-export function generateHoroscope(
-  birthChart: BirthChart,
-  currentDate: Date = new Date(),
-): DailyHoroscope {
+export function generateHoroscope(birthChart: BirthChart, currentDate: Date = new Date()): DailyHoroscope {
   const currentDays = daysSince(currentDate);
   const currentLucas = lucasMod60(currentDays);
 
   // Resonance calculation - how aligned current cosmic state is with birth chart
-  const resonance = Math.cos(
-    ((currentLucas - birthChart.lucasIndex) * 6 * Math.PI) / 180,
-  );
+  const resonance = Math.cos(((currentLucas - birthChart.lucasIndex) * 6 * Math.PI) / 180);
 
   const gate = getGate(currentDays);
   const rune = RUNES[gate];
@@ -277,22 +268,14 @@ export function generateHoroscope(
   let effects: string[];
 
   if (resonance > 0.7) {
-    fortuneLevel = "stellar";
-    effects = [
-      "XP gain +20%",
-      "Resource finds +15%",
-      "Rare event chance boosted",
-    ];
+    fortuneLevel = 'stellar';
+    effects = ['XP gain +20%', 'Resource finds +15%', 'Rare event chance boosted'];
   } else if (resonance > 0.3) {
-    fortuneLevel = "calm";
-    effects = ["Normal gameplay", "Steady progress"];
+    fortuneLevel = 'calm';
+    effects = ['Normal gameplay', 'Steady progress'];
   } else {
-    fortuneLevel = "tension";
-    effects = [
-      "Mutation chance +30%",
-      "Resources -10%",
-      "Chaos content unlocked",
-    ];
+    fortuneLevel = 'tension';
+    effects = ['Mutation chance +30%', 'Resources -10%', 'Chaos content unlocked'];
   }
 
   return {
@@ -331,13 +314,13 @@ export function calculateGRS(state: GRSState): GRSResult {
   // Sigmoid function to normalize to 0-100 range
   const score = Math.round(100 / (1 + Math.exp(-x)));
 
-  let status: GRSResult["status"];
+  let status: GRSResult['status'];
   if (score >= 70) {
-    status = "EVOLVE";
+    status = 'EVOLVE';
   } else if (score >= 55) {
-    status = "GROW";
+    status = 'GROW';
   } else {
-    status = "REST";
+    status = 'REST';
   }
 
   return { score, status };
@@ -347,7 +330,7 @@ export function calculateGRS(state: GRSState): GRSResult {
  * XOR two digit sequences (for breeding operations)
  */
 export function xorSequences(seq1: string, seq2: string): string {
-  let result = "";
+  let result = '';
   for (let i = 0; i < 5; i++) {
     const d1 = parseInt(seq1[i], 10);
     const d2 = parseInt(seq2[i], 10);
@@ -361,9 +344,9 @@ export function xorSequences(seq1: string, seq2: string): string {
  */
 export function ninesComplement(seq: string): string {
   return seq
-    .split("")
+    .split('')
     .map((d) => (9 - parseInt(d, 10)).toString())
-    .join("");
+    .join('');
 }
 
 /**
@@ -381,7 +364,7 @@ export function rotateSequence(seq: string, shift: number): string {
 export function simulateBreeding(
   parentChart: BirthChart,
   breedTime: Date,
-  partner?: BirthChart,
+  partner?: BirthChart
 ): BreedingPreview {
   const breedDays = daysSince(breedTime);
   const babyLucasIndex = lucasMod60(breedDays);
@@ -393,35 +376,29 @@ export function simulateBreeding(
   let babyBlack: string;
 
   // Apply rune-based breeding operations
-  if (gate.includes("Friction")) {
+  if (gate.includes('Friction')) {
     // XOR hybrid - combines parent traits
     if (partner) {
       babyRed = xorSequences(parentChart.sequences.red, partner.sequences.red);
-      babyBlue = xorSequences(
-        parentChart.sequences.blue,
-        partner.sequences.blue,
-      );
-      babyBlack = xorSequences(
-        parentChart.sequences.black,
-        partner.sequences.black,
-      );
+      babyBlue = xorSequences(parentChart.sequences.blue, partner.sequences.blue);
+      babyBlack = xorSequences(parentChart.sequences.black, partner.sequences.black);
     } else {
       // Self-breeding with XOR produces zeros
       babyRed = getSlice(ASTROLABE_RED, babyLucasIndex);
       babyBlue = getSlice(ASTROLABE_BLUE, babyLucasIndex);
       babyBlack = getSlice(ASTROLABE_BLACK, babyLucasIndex);
     }
-  } else if (gate.includes("Amplify")) {
+  } else if (gate.includes('Amplify')) {
     // Mirror parent traits
     babyRed = parentChart.sequences.red;
     babyBlue = parentChart.sequences.blue;
     babyBlack = parentChart.sequences.black;
-  } else if (gate.includes("Shadow")) {
+  } else if (gate.includes('Shadow')) {
     // 9's complement - inverse traits
     babyRed = ninesComplement(getSlice(ASTROLABE_RED, babyLucasIndex));
     babyBlue = ninesComplement(getSlice(ASTROLABE_BLUE, babyLucasIndex));
     babyBlack = ninesComplement(getSlice(ASTROLABE_BLACK, babyLucasIndex));
-  } else if (gate.includes("Cut")) {
+  } else if (gate.includes('Cut')) {
     // Hold best stats - use higher of parent vs new
     const newRed = getSlice(ASTROLABE_RED, babyLucasIndex);
     const newBlue = getSlice(ASTROLABE_BLUE, babyLucasIndex);
@@ -430,15 +407,12 @@ export function simulateBreeding(
     babyRed = maxSequence(parentChart.sequences.red, newRed);
     babyBlue = maxSequence(parentChart.sequences.blue, newBlue);
     babyBlack = maxSequence(parentChart.sequences.black, newBlack);
-  } else if (gate.includes("Mercury")) {
+  } else if (gate.includes('Mercury')) {
     // Rotate indices based on retrograde
     const shift = babyLucasIndex % 5;
     babyRed = rotateSequence(getSlice(ASTROLABE_RED, babyLucasIndex), shift);
     babyBlue = rotateSequence(getSlice(ASTROLABE_BLUE, babyLucasIndex), shift);
-    babyBlack = rotateSequence(
-      getSlice(ASTROLABE_BLACK, babyLucasIndex),
-      shift,
-    );
+    babyBlack = rotateSequence(getSlice(ASTROLABE_BLACK, babyLucasIndex), shift);
   } else {
     // Default: use baby's own sequences based on birth time
     babyRed = getSlice(ASTROLABE_RED, babyLucasIndex);
@@ -464,7 +438,7 @@ export function simulateBreeding(
  * Helper: Get max of two sequences digit by digit
  */
 function maxSequence(seq1: string, seq2: string): string {
-  let result = "";
+  let result = '';
   for (let i = 0; i < Math.min(seq1.length, seq2.length); i++) {
     const d1 = parseInt(seq1[i], 10);
     const d2 = parseInt(seq2[i], 10);
@@ -478,26 +452,26 @@ function maxSequence(seq1: string, seq2: string): string {
  */
 export function getFortuneColor(level: FortuneLevel): string {
   switch (level) {
-    case "stellar":
-      return "#4ade80";
-    case "calm":
-      return "#fbbf24";
-    case "tension":
-      return "#f87171";
+    case 'stellar':
+      return '#4ade80';
+    case 'calm':
+      return '#fbbf24';
+    case 'tension':
+      return '#f87171';
   }
 }
 
 /**
  * Get GRS status color for UI rendering
  */
-export function getGRSStatusColor(status: GRSResult["status"]): string {
+export function getGRSStatusColor(status: GRSResult['status']): string {
   switch (status) {
-    case "EVOLVE":
-      return "#4ade80";
-    case "GROW":
-      return "#fbbf24";
-    case "REST":
-      return "#f87171";
+    case 'EVOLVE':
+      return '#4ade80';
+    case 'GROW':
+      return '#fbbf24';
+    case 'REST':
+      return '#f87171';
   }
 }
 
@@ -510,7 +484,7 @@ export function formatPlanetaryModifier(modifier: number): {
   isNeutral: boolean;
 } {
   const percent = ((modifier - 1) * 100).toFixed(1);
-  const sign = parseFloat(percent) > 0 ? "+" : "";
+  const sign = parseFloat(percent) > 0 ? '+' : '';
   return {
     text: `${sign}${percent}%`,
     isPositive: modifier > 1.05,

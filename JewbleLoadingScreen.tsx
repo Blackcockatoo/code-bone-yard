@@ -52,7 +52,7 @@ export function JewbleLoadingScreen(props: JewbleLoadingScreenProps) {
   const safeProgress = Math.max(0, Math.min(100, progress));
   const strokeDashoffset = useMemo(
     () => circumference * (1 - safeProgress / 100),
-    [circumference, safeProgress],
+    [circumference, safeProgress]
   );
 
   const derivedLabel = useMemo(() => {
@@ -138,11 +138,7 @@ export function JewbleLoadingScreen(props: JewbleLoadingScreenProps) {
             <motion.div
               className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-amber-400 via-cyan-300 to-emerald-400"
               animate={{ x: ["-40%", "120%"] }}
-              transition={{
-                duration: 2.4,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
+              transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
             />
           </div>
 
@@ -153,48 +149,24 @@ export function JewbleLoadingScreen(props: JewbleLoadingScreenProps) {
                 className="absolute inset-4 rounded-full bg-[conic-gradient(from_0deg,rgba(250,204,21,0.18),rgba(56,189,248,0.2),rgba(45,212,191,0.16),rgba(250,204,21,0.18))] blur-xl"
               />
 
-              <motion.svg
-                className="relative w-64 h-64 drop-shadow-[0_0_25px_rgba(8,47,73,0.8)]"
-                viewBox="0 0 220 220"
-              >
+              <motion.svg className="relative w-64 h-64 drop-shadow-[0_0_25px_rgba(8,47,73,0.8)]" viewBox="0 0 220 220">
                 <defs>
                   <radialGradient id="mandalaFill" cx="50%" cy="50%" r="70%">
                     <stop offset="0%" stopColor="rgba(15,23,42,1)" />
                     <stop offset="100%" stopColor="rgba(15,23,42,0)" />
                   </radialGradient>
-                  <linearGradient
-                    id="mandalaStroke"
-                    x1="0%"
-                    y1="0%"
-                    x2="100%"
-                    y2="100%"
-                  >
+                  <linearGradient id="mandalaStroke" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stopColor="#facc15" />
                     <stop offset="50%" stopColor="#22d3ee" />
                     <stop offset="100%" stopColor="#a855f7" />
                   </linearGradient>
                 </defs>
 
-                <circle
-                  cx="110"
-                  cy="110"
-                  r="72"
-                  fill="url(#mandalaFill)"
-                  stroke="#020617"
-                  strokeWidth="1"
-                />
+                <circle cx="110" cy="110" r="72" fill="url(#mandalaFill)" stroke="#020617" strokeWidth="1" />
 
                 {[0, 60, 120].map((angle) => (
                   <g key={angle} transform={`rotate(${angle},110,110)`}>
-                    <line
-                      x1="110"
-                      y1="32"
-                      x2="110"
-                      y2="188"
-                      stroke="rgba(148,163,184,0.45)"
-                      strokeWidth="1"
-                      strokeLinecap="round"
-                    />
+                    <line x1="110" y1="32" x2="110" y2="188" stroke="rgba(148,163,184,0.45)" strokeWidth="1" strokeLinecap="round" />
                   </g>
                 ))}
 
@@ -211,9 +183,7 @@ export function JewbleLoadingScreen(props: JewbleLoadingScreenProps) {
                   initial={false}
                   animate={{ strokeDashoffset }}
                   transition={{ duration: 0.6, ease: "easeOut" }}
-                  style={{
-                    filter: "drop-shadow(0 0 20px rgba(56,189,248,0.7))",
-                  }}
+                  style={{ filter: "drop-shadow(0 0 20px rgba(56,189,248,0.7))" }}
                 />
 
                 <motion.circle
@@ -226,11 +196,7 @@ export function JewbleLoadingScreen(props: JewbleLoadingScreenProps) {
                   strokeDasharray="4 8"
                   animate={{ rotate: 360 }}
                   style={{ originX: "110px", originY: "110px" }}
-                  transition={{
-                    duration: 24,
-                    repeat: Infinity,
-                    ease: "linear",
-                  }}
+                  transition={{ duration: 24, repeat: Infinity, ease: "linear" }}
                 />
               </motion.svg>
 
@@ -254,16 +220,10 @@ export function JewbleLoadingScreen(props: JewbleLoadingScreenProps) {
 
             <div className="w-full md:w-1/2 space-y-6">
               <div>
-                <p className="text-xs tracking-[0.25em] uppercase text-cyan-300/70 mb-2">
-                  Jewble // Meta-Pet
-                </p>
-                <h1 className="text-2xl md:text-3xl font-semibold text-slate-50">
-                  The Celestial Flight
-                </h1>
+                <p className="text-xs tracking-[0.25em] uppercase text-cyan-300/70 mb-2">Jewble // Meta-Pet</p>
+                <h1 className="text-2xl md:text-3xl font-semibold text-slate-50">The Celestial Flight</h1>
                 <p className="mt-2 text-sm text-slate-300/80">
-                  Your cockpit is spinning up. Our cockatoo is tracing
-                  figure-eights through a gold–cyan mandala while the core
-                  experience boots in the background.
+                  Your cockpit is spinning up. Our cockatoo is tracing figure-eights through a gold–cyan mandala while the core experience boots in the background.
                 </p>
               </div>
 
@@ -283,9 +243,8 @@ export function JewbleLoadingScreen(props: JewbleLoadingScreenProps) {
               </div>
 
               <div className="text-[0.7rem] text-slate-400 leading-relaxed">
-                Tip: tap or click the cockatoo to make it briefly dodge off its
-                orbit. It’ll always snap back to the flight path—just like
-                Jewble recovering from a cold start.
+                Tip: tap or click the cockatoo to make it briefly dodge off its orbit.  
+                It’ll always snap back to the flight path—just like Jewble recovering from a cold start.
               </div>
             </div>
           </div>

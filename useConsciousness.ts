@@ -1,264 +1,114 @@
 /**
  * Consciousness Hook
- * Manages unified consciousness state that blends genetics, behavior, and environment
+ * Unifies genetics, behavior, sentiment, and environment for the Guardian.
  */
 
-import { useState, useEffect, useCallback, useRef } from "react";
-import type { DerivedTraits } from "@/genome/types";
-import type {
-  GuardianStats,
-  GuardianPosition,
-  GuardianField,
-  GuardianDrive,
-  ComfortState,
-  ExpandedEmotionalState,
-  GuardianAIMode,
-  GBSPState,
-} from "../../../shared/auralia/guardianBehavior";
-import {
-  calculateDrives,
-  calculateComfort,
-  getExpandedEmotionalState,
-  calculateGBSPState,
-} from "../../../shared/auralia/guardianBehavior";
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { calculateComfort, calculateDrives, calculateGBSPState, getExpandedEmotionalState } from '@/guardian/stats';
+import type { GuardianAIMode, GuardianField, GuardianPosition, GuardianStats } from '@/guardian/types';
+import { getTimeOfDay } from '@/guardian/behavior';
 import {
   type ConsciousnessState,
-  initializeConsciousness,
+  type PersonalityTraits,
+  type ParticleParams,
   applyGeneticModulation,
-  refineEmotionalExpression,
-  getEffectivePersonality,
-  emotionToParticleParams,
-  recordExperience,
   consciousnessToResponseContext,
-} from "./consciousness";
+  derivePersonalityTraitsFromStats,
+  emotionToParticleParams,
+  getEffectivePersonality,
+  initializeConsciousness,
+  recordExperience,
+  refineEmotionalExpression,
+} from './consciousness';
 
 export interface UseConsciousnessOptions {
-  traits: DerivedTraits;
-  initialVitals: GuardianStats;
+  traits: PersonalityTraits;
+  vitals: GuardianStats;
   field: GuardianField;
   position: GuardianPosition;
   fieldResonance: number;
+  mode: GuardianAIMode;
 }
 
 export interface ConsciousnessActions {
   recordAction: (action: string, impact: number) => void;
-  updateVitals: (vitals: Partial<GuardianStats>) => void;
-  updatePosition: (position: Partial<GuardianPosition>) => void;
-  updateContext: (context: {
-    fieldResonance?: number;
-    timeOfDay?: "dawn" | "day" | "dusk" | "night";
-  }) => void;
-  getParticleParams: () => ReturnType<typeof emotionToParticleParams>;
-  getResponseContext: (vitals: {
-    mood: number;
-    energy: number;
-    hunger: number;
-    hygiene: number;
-  }) => ReturnType<typeof consciousnessToResponseContext>;
+  getParticleParams: () => ParticleParams;
+  getResponseContext: (vitals: { mood: number; energy: number; hunger: number; hygiene: number }) => ReturnType<typeof consciousnessToResponseContext>;
 }
 
-/**
- * Main consciousness hook - unifies genetics, behavior, sentiment
- */
-export function useConsciousness({
-  traits,
-  initialVitals,
-  field,
-  position,
-  fieldResonance,
-}: UseConsciousnessOptions): [ConsciousnessState, ConsciousnessActions] {
-  // Initialize consciousness state
+export function useConsciousness(options: UseConsciousnessOptions): [ConsciousnessState, ConsciousnessActions] {
+  const { traits, vitals, field, position, fieldResonance, mode } = options;
+
   const [consciousness, setConsciousness] = useState<ConsciousnessState>(() =>
-    initializeConsciousness(traits, initialVitals, position, fieldResonance),
+    initializeConsciousness(traits, vitals, position, fieldResonance, getTimeOfDay())
   );
 
-  // Track previous GBSP state for continuity
-  const prevGBSPRef = useRef<GBSPState | null>(null);
-
-  // Update consciousness based on current state
-  const updateConsciousness = useCallback(
-    (
-      currentVitals: GuardianStats,
-      currentPosition: GuardianPosition,
-      currentFieldResonance: number,
-      mode: GuardianAIMode,
-      awareness: number[],
-      sigilPoints: any[],
-    ) => {
-      setConsciousness((prev) => {
-        const effectivePersonality = getEffectivePersonality(prev);
-
-        // Calculate base drives from guardian behavior system
-        const baseDrives = calculateDrives(
-          currentPosition,
-          field,
-          currentVitals,
-          awareness,
-          Date.now(),
-        );
-
-        // Apply genetic modulation - personality influences drives
-        const modulatedDrives = applyGeneticModulation(
-          baseDrives,
-          effectivePersonality,
-        );
-
-        // Calculate comfort from drives
-        const comfort = calculateComfort(modulatedDrives);
-
-        // Calculate full GBSP state
-        const gbspState = calculateGBSPState(
-          currentPosition,
-          field,
-          currentVitals,
-          awareness,
-          mode,
-          currentFieldResonance,
-          sigilPoints,
-          prevGBSPRef.current,
-          Date.now(),
-        );
-
-        // Store for next update
-        prevGBSPRef.current = gbspState;
-
-        // Get base emotional state from GBSP
-        const baseEmotion = gbspState.emotionalState;
-
-        // Refine emotional expression based on personality
-        const refinedEmotion = refineEmotionalExpression(
-          baseEmotion,
-          effectivePersonality,
-          field.prng,
-        );
-
-        return {
-          ...prev,
-          expression: {
-            emotional: refinedEmotion,
-            drives: modulatedDrives,
-            comfort,
-            vitals: currentVitals,
-          },
-          context: {
-            position: currentPosition,
-            fieldResonance: currentFieldResonance,
-            timeOfDay: prev.context.timeOfDay, // Will be updated separately
-          },
-        };
-      });
-    },
-    [field],
-  );
-
-  // Actions
-  const recordAction = useCallback((action: string, impact: number) => {
-    setConsciousness((prev) => {
-      return recordExperience(prev, action, prev.expression.emotional, impact);
-    });
-  }, []);
-
-  const updateVitals = useCallback((vitals: Partial<GuardianStats>) => {
-    setConsciousness((prev) => ({
+  useEffect(() => {
+    setConsciousness(prev => ({
       ...prev,
-      expression: {
-        ...prev.expression,
-        vitals: {
-          ...prev.expression.vitals,
-          ...vitals,
-        },
-      },
+      identity: { ...prev.identity, traits },
     }));
+  }, [traits]);
+
+  useEffect(() => {
+    const prng = field.prng ?? Math.random;
+    const awareness = Math.min(100, (vitals.curiosity + vitals.energy) / 2);
+
+    setConsciousness(prev => {
+      const effectivePersonality = getEffectivePersonality(prev);
+      const baseDrives = calculateDrives(position, field, vitals, awareness, Date.now());
+      const modulatedDrives = applyGeneticModulation(baseDrives, effectivePersonality);
+      const comfort = calculateComfort(modulatedDrives);
+
+      const gbspState = calculateGBSPState(position, field, vitals, mode, Date.now());
+      const baseEmotion = getExpandedEmotionalState(gbspState.drives, comfort, vitals, mode);
+      const refinedEmotion = refineEmotionalExpression(baseEmotion, effectivePersonality, prng);
+
+      return {
+        ...prev,
+        expression: {
+          emotional: refinedEmotion,
+          drives: modulatedDrives,
+          comfort,
+          vitals,
+        },
+        context: {
+          position,
+          fieldResonance,
+          timeOfDay: getTimeOfDay(),
+        },
+      };
+    });
+  }, [field, position, vitals.energy, vitals.curiosity, vitals.bond, vitals.health, fieldResonance, mode]);
+
+  const recordAction = useCallback((action: string, impact: number) => {
+    setConsciousness(prev => recordExperience(prev, action, prev.expression.emotional, impact));
   }, []);
-
-  const updatePosition = useCallback(
-    (newPosition: Partial<GuardianPosition>) => {
-      setConsciousness((prev) => ({
-        ...prev,
-        context: {
-          ...prev.context,
-          position: {
-            ...prev.context.position,
-            ...newPosition,
-          },
-        },
-      }));
-    },
-    [],
-  );
-
-  const updateContext = useCallback(
-    (context: {
-      fieldResonance?: number;
-      timeOfDay?: "dawn" | "day" | "dusk" | "night";
-    }) => {
-      setConsciousness((prev) => ({
-        ...prev,
-        context: {
-          ...prev.context,
-          ...context,
-        },
-      }));
-    },
-    [],
-  );
 
   const getParticleParams = useCallback(() => {
     return emotionToParticleParams(
       consciousness.expression.emotional,
       consciousness.expression.comfort,
-      consciousness.expression.drives,
+      consciousness.expression.drives
     );
   }, [consciousness.expression]);
 
-  const getResponseContext = useCallback(
-    (vitals: {
-      mood: number;
-      energy: number;
-      hunger: number;
-      hygiene: number;
-    }) => {
-      return consciousnessToResponseContext(consciousness, vitals);
-    },
-    [consciousness],
-  );
+  const getResponseContext = useCallback((responseVitals: { mood: number; energy: number; hunger: number; hygiene: number }) => {
+    return consciousnessToResponseContext(consciousness, responseVitals);
+  }, [consciousness]);
 
-  const actions: ConsciousnessActions = {
-    recordAction,
-    updateVitals,
-    updatePosition,
-    updateContext,
-    getParticleParams,
-    getResponseContext,
-  };
+  const actions: ConsciousnessActions = useMemo(
+    () => ({
+      recordAction,
+      getParticleParams,
+      getResponseContext,
+    }),
+    [recordAction, getParticleParams, getResponseContext]
+  );
 
   return [consciousness, actions];
 }
 
-/**
- * Helper hook to sync consciousness with guardian AI state
- * Call this in your component's useEffect when AI state changes
- */
-export function useSyncConsciousness(
-  actions: ConsciousnessActions,
-  vitals: GuardianStats,
-  position: GuardianPosition,
-  fieldResonance: number,
-  mode: GuardianAIMode,
-  awareness: number[],
-  sigilPoints: any[],
-) {
-  const { updateVitals, updatePosition, updateContext } = actions;
-
-  useEffect(() => {
-    updateVitals(vitals);
-  }, [vitals.energy, vitals.curiosity, vitals.bond, updateVitals]);
-
-  useEffect(() => {
-    updatePosition(position);
-  }, [position.x, position.y, position.vx, position.vy, updatePosition]);
-
-  useEffect(() => {
-    updateContext({ fieldResonance });
-  }, [fieldResonance, updateContext]);
+export function deriveTraitsFromCurrentState(stats: GuardianStats, field: GuardianField, seed?: string): PersonalityTraits {
+  return derivePersonalityTraitsFromStats(stats, field, seed);
 }

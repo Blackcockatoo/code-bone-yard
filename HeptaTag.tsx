@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import type { HeptaDigits } from "@/lib/identity/types";
+import type { HeptaDigits } from '@/lib/identity/types';
 
 interface HeptaTagProps {
   digits: HeptaDigits;
@@ -8,13 +8,13 @@ interface HeptaTagProps {
 }
 
 const COLORS = [
-  "#FF6B6B", // 0: red
-  "#F59E42", // 1: orange
-  "#FFD93D", // 2: yellow
-  "#6BCF7F", // 3: green
-  "#4ECDC4", // 4: cyan
-  "#A66FB5", // 5: purple
-  "#C44569", // 6: magenta
+  '#FF6B6B', // 0: red
+  '#F59E42', // 1: orange
+  '#FFD93D', // 2: yellow
+  '#6BCF7F', // 3: green
+  '#4ECDC4', // 4: cyan
+  '#A66FB5', // 5: purple
+  '#C44569', // 6: magenta
 ];
 
 /**
@@ -25,17 +25,15 @@ const COLORS = [
  */
 export function HeptaTag({ digits, size = 320 }: HeptaTagProps) {
   if (digits.length !== 42) {
-    return (
-      <div className="text-red-500">Invalid HeptaCode (expected 42 digits)</div>
-    );
+    return <div className="text-red-500">Invalid HeptaCode (expected 42 digits)</div>;
   }
 
   const cx = size / 2;
   const cy = size / 2;
   const rings = [
-    { radius: size * 0.42, count: 14, start: 0 }, // outer
-    { radius: size * 0.3, count: 14, start: 14 }, // middle
-    { radius: size * 0.18, count: 14, start: 28 }, // inner
+    { radius: size * 0.42, count: 14, start: 0 },   // outer
+    { radius: size * 0.30, count: 14, start: 14 },  // middle
+    { radius: size * 0.18, count: 14, start: 28 },  // inner
   ];
 
   return (

@@ -4,11 +4,11 @@
  * feature toggles, and other legal/privacy requirements.
  */
 
-export type ConsentStatus = "pending" | "granted" | "denied";
+export type ConsentStatus = 'pending' | 'granted' | 'denied';
 
 export function getConsentStatus(): ConsentStatus {
   // Logic to read from storage (e.g., MMKV)
-  return "granted"; // Placeholder
+  return 'granted'; // Placeholder
 }
 
 export function setConsentStatus(status: ConsentStatus): void {

@@ -1,22 +1,22 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useStore } from "@/lib/store";
-import { Trophy, Medal, Crown, Award } from "lucide-react";
+import { useState } from 'react';
+import { useStore } from '@/lib/store';
+import { Trophy, Medal, Crown, Award } from 'lucide-react';
 import {
   ACHIEVEMENTS_CATALOG,
   updateAchievementProgress,
   calculateTotalPoints,
   getAchievementsByCategory,
   type Achievement,
-} from "@/lib/achievements";
+} from '@/lib/achievements';
 
 const CATEGORY_ICONS = {
-  care: "❤️",
-  battle: "⚔️",
-  exploration: "🗺️",
-  evolution: "🧬",
-  social: "👥",
+  care: '❤️',
+  battle: '⚔️',
+  exploration: '🗺️',
+  evolution: '🧬',
+  social: '👥',
 };
 
 const TIER_ICONS = {
@@ -27,21 +27,19 @@ const TIER_ICONS = {
 };
 
 const TIER_COLORS = {
-  bronze: "text-orange-400 bg-orange-500/20 border-orange-600",
-  silver: "text-zinc-300 bg-zinc-500/20 border-zinc-600",
-  gold: "text-yellow-400 bg-yellow-500/20 border-yellow-600",
-  platinum: "text-cyan-400 bg-cyan-500/20 border-cyan-600",
+  bronze: 'text-orange-400 bg-orange-500/20 border-orange-600',
+  silver: 'text-zinc-300 bg-zinc-500/20 border-zinc-600',
+  gold: 'text-yellow-400 bg-yellow-500/20 border-yellow-600',
+  platinum: 'text-cyan-400 bg-cyan-500/20 border-cyan-600',
 };
 
 export function AchievementsPanel() {
-  const [selectedCategory, setSelectedCategory] = useState<
-    Achievement["category"] | "all"
-  >("all");
-
-  const vitals = useStore((s) => s.vitals);
-  const evolution = useStore((s) => s.evolution);
-  const battle = useStore((s) => s.battle);
-  const vimana = useStore((s) => s.vimana);
+  const [selectedCategory, setSelectedCategory] = useState<Achievement['category'] | 'all'>('all');
+  
+  const vitals = useStore(s => s.vitals);
+  const evolution = useStore(s => s.evolution);
+  const battle = useStore(s => s.battle);
+  const vimana = useStore(s => s.vimana);
 
   // Mock breeding state
   const breeding = { offspringCount: 0 };
@@ -53,29 +51,27 @@ export function AchievementsPanel() {
     vimana: {
       totalSamples: vimana.scansPerformed || 0,
       anomaliesResolved: vimana.anomaliesResolved ?? vimana.anomaliesFound ?? 0,
-      cells: (vimana.cells || []).map((c) => ({
-        explored: Boolean("explored" in c ? c.explored : c.discovered),
-      })),
+      cells: (vimana.cells || []).map(c => ({ explored: Boolean('explored' in c ? c.explored : c.discovered) })),
     },
     evolution,
     breeding,
   });
 
   const filteredAchievements =
-    selectedCategory === "all"
+    selectedCategory === 'all'
       ? achievements
-      : achievements.filter((a) => a.category === selectedCategory);
+      : achievements.filter(a => a.category === selectedCategory);
 
   const totalPoints = calculateTotalPoints(achievements);
-  const unlockedCount = achievements.filter((a) => a.unlocked).length;
+  const unlockedCount = achievements.filter(a => a.unlocked).length;
 
-  const categories: Array<Achievement["category"] | "all"> = [
-    "all",
-    "care",
-    "battle",
-    "exploration",
-    "evolution",
-    "social",
+  const categories: Array<Achievement['category'] | 'all'> = [
+    'all',
+    'care',
+    'battle',
+    'exploration',
+    'evolution',
+    'social',
   ];
 
   return (
@@ -86,9 +82,7 @@ export function AchievementsPanel() {
             <Trophy className="w-5 h-5 text-yellow-400" />
             Achievements
           </h2>
-          <p className="text-xs text-zinc-500">
-            Track your progress and earn rewards
-          </p>
+          <p className="text-xs text-zinc-500">Track your progress and earn rewards</p>
         </div>
         <div className="text-right">
           <p className="text-2xl font-bold text-yellow-400">{totalPoints}</p>
@@ -106,16 +100,12 @@ export function AchievementsPanel() {
             </p>
           </div>
           <div className="flex gap-4">
-            {(["bronze", "silver", "gold", "platinum"] as const).map((tier) => {
-              const count = achievements.filter(
-                (a) => a.tier === tier && a.unlocked,
-              ).length;
+            {(['bronze', 'silver', 'gold', 'platinum'] as const).map(tier => {
+              const count = achievements.filter(a => a.tier === tier && a.unlocked).length;
               const Icon = TIER_ICONS[tier];
               return (
                 <div key={tier} className="text-center">
-                  <Icon
-                    className={`w-5 h-5 mx-auto ${TIER_COLORS[tier].split(" ")[0]}`}
-                  />
+                  <Icon className={`w-5 h-5 mx-auto ${TIER_COLORS[tier].split(' ')[0]}`} />
                   <p className="text-xs text-zinc-400 mt-1">{count}</p>
                 </div>
               );
@@ -132,7 +122,7 @@ export function AchievementsPanel() {
 
       {/* Category Filter */}
       <div className="flex gap-2 flex-wrap">
-        {categories.map((category) => (
+        {categories.map(category => (
           <button
             key={category}
             onClick={() => setSelectedCategory(category)}
@@ -140,13 +130,12 @@ export function AchievementsPanel() {
               px-3 py-1.5 rounded-lg text-xs font-medium transition-all capitalize
               ${
                 selectedCategory === category
-                  ? "bg-zinc-700 text-white"
-                  : "bg-zinc-800/40 text-zinc-400 hover:bg-zinc-800"
+                  ? 'bg-zinc-700 text-white'
+                  : 'bg-zinc-800/40 text-zinc-400 hover:bg-zinc-800'
               }
             `}
           >
-            {category !== "all" &&
-              CATEGORY_ICONS[category as keyof typeof CATEGORY_ICONS]}{" "}
+            {category !== 'all' && CATEGORY_ICONS[category as keyof typeof CATEGORY_ICONS]}{' '}
             {category}
           </button>
         ))}
@@ -154,17 +143,16 @@ export function AchievementsPanel() {
 
       {/* Achievements List */}
       <div className="space-y-3">
-        {filteredAchievements.map((achievement) => {
+        {filteredAchievements.map(achievement => {
           const Icon = TIER_ICONS[achievement.tier];
-          const progress =
-            (achievement.progress / achievement.maxProgress) * 100;
+          const progress = (achievement.progress / achievement.maxProgress) * 100;
 
           return (
             <div
               key={achievement.id}
               className={`
                 relative p-4 rounded-lg border-2 transition-all
-                ${achievement.unlocked ? "bg-zinc-800/80 border-zinc-600" : "bg-zinc-900/40 border-zinc-700"}
+                ${achievement.unlocked ? 'bg-zinc-800/80 border-zinc-600' : 'bg-zinc-900/40 border-zinc-700'}
               `}
             >
               {/* Tier Badge */}
@@ -181,12 +169,8 @@ export function AchievementsPanel() {
               <div className="pr-12">
                 <div className="flex items-start gap-3">
                   <div className="flex-1">
-                    <h3 className="font-semibold text-white mb-1">
-                      {achievement.name}
-                    </h3>
-                    <p className="text-xs text-zinc-400 mb-3">
-                      {achievement.description}
-                    </p>
+                    <h3 className="font-semibold text-white mb-1">{achievement.name}</h3>
+                    <p className="text-xs text-zinc-400 mb-3">{achievement.description}</p>
 
                     {/* Progress Bar */}
                     {!achievement.unlocked && (
@@ -195,9 +179,7 @@ export function AchievementsPanel() {
                           <span className="text-zinc-500">
                             {achievement.progress} / {achievement.maxProgress}
                           </span>
-                          <span className="text-zinc-400 font-medium">
-                            {Math.floor(progress)}%
-                          </span>
+                          <span className="text-zinc-400 font-medium">{Math.floor(progress)}%</span>
                         </div>
                         <div className="bg-zinc-800 rounded-full h-1.5 overflow-hidden">
                           <div
@@ -211,14 +193,10 @@ export function AchievementsPanel() {
                     {/* Unlocked Badge */}
                     {achievement.unlocked && (
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-medium text-emerald-400">
-                          ✓ Unlocked
-                        </span>
+                        <span className="text-xs font-medium text-emerald-400">✓ Unlocked</span>
                         {achievement.unlockedAt && (
                           <span className="text-xs text-zinc-500">
-                            {new Date(
-                              achievement.unlockedAt,
-                            ).toLocaleDateString()}
+                            {new Date(achievement.unlockedAt).toLocaleDateString()}
                           </span>
                         )}
                       </div>
@@ -229,8 +207,7 @@ export function AchievementsPanel() {
                 {/* Reward */}
                 <div className="mt-3 pt-3 border-t border-zinc-700/50">
                   <p className="text-xs text-zinc-500">
-                    <span className="text-amber-400">Reward:</span>{" "}
-                    {achievement.reward.value}
+                    <span className="text-amber-400">Reward:</span> {achievement.reward.value}
                   </p>
                 </div>
               </div>

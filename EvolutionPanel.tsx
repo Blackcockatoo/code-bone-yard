@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo } from 'react';
 
-import { useStore } from "@/lib/store";
+import { useStore } from '@/lib/store';
 import {
   getEvolutionProgress,
   getTimeUntilNextEvolution,
@@ -11,40 +11,28 @@ import {
   EVOLUTION_STAGE_INFO,
   EVOLUTION_VISUALS,
   type EvolutionState,
-} from "@/lib/evolution";
-import {
-  Zap,
-  Clock,
-  TrendingUp,
-  Sparkles,
-  CheckCircle2,
-  AlertTriangle,
-} from "lucide-react";
+} from '@/lib/evolution';
+import { Zap, Clock, TrendingUp, Sparkles, CheckCircle2, AlertTriangle } from 'lucide-react';
 
-import { Button } from "./ui/button";
+import { Button } from './ui/button';
 
 type StageSequence = readonly EvolutionState[];
 
-const STAGE_SEQUENCE: StageSequence = [
-  "GENETICS",
-  "NEURO",
-  "QUANTUM",
-  "SPECIATION",
-];
+const STAGE_SEQUENCE: StageSequence = ['GENETICS', 'NEURO', 'QUANTUM', 'SPECIATION'];
 
 export function EvolutionPanel() {
-  const evolution = useStore((state) => state.evolution);
-  const vitals = useStore((state) => state.vitals);
-  const tryEvolve = useStore((state) => state.tryEvolve);
+  const evolution = useStore(state => state.evolution);
+  const vitals = useStore(state => state.vitals);
+  const tryEvolve = useStore(state => state.tryEvolve);
 
   const vitalsAverage = useMemo(
     () => (vitals.hunger + vitals.hygiene + vitals.mood + vitals.energy) / 4,
-    [vitals.energy, vitals.hunger, vitals.hygiene, vitals.mood],
+    [vitals.energy, vitals.hunger, vitals.hygiene, vitals.mood]
   );
 
   const stageIndex = useMemo(
     () => STAGE_SEQUENCE.indexOf(evolution.state),
-    [evolution.state],
+    [evolution.state]
   );
 
   const visuals = EVOLUTION_VISUALS[evolution.state];
@@ -52,17 +40,17 @@ export function EvolutionPanel() {
 
   const progress = useMemo(
     () => getEvolutionProgress(evolution, vitalsAverage),
-    [evolution, vitalsAverage],
+    [evolution, vitalsAverage]
   );
 
   const timeRemaining = useMemo(
     () => getTimeUntilNextEvolution(evolution),
-    [evolution],
+    [evolution]
   );
 
   const requirementSnapshot = useMemo(
     () => getNextEvolutionRequirement(evolution),
-    [evolution],
+    [evolution]
   );
 
   const requirementProgress = useMemo(
@@ -70,15 +58,13 @@ export function EvolutionPanel() {
       requirementSnapshot
         ? getRequirementProgress(evolution, vitalsAverage, requirementSnapshot)
         : null,
-    [evolution, vitalsAverage, requirementSnapshot],
+    [evolution, vitalsAverage, requirementSnapshot]
   );
 
-  const nextStageInfo = requirementSnapshot
-    ? EVOLUTION_STAGE_INFO[requirementSnapshot.state]
-    : null;
+  const nextStageInfo = requirementSnapshot ? EVOLUTION_STAGE_INFO[requirementSnapshot.state] : null;
 
   const formatDuration = useCallback((milliseconds: number) => {
-    if (milliseconds < 0) return "Max level";
+    if (milliseconds < 0) return 'Max level';
     const hours = Math.floor(milliseconds / (1000 * 60 * 60));
     const minutes = Math.floor((milliseconds % (1000 * 60 * 60)) / (1000 * 60));
 
@@ -95,18 +81,14 @@ export function EvolutionPanel() {
     const evolved = tryEvolve();
     if (evolved) {
       const targetStage = requirementSnapshot?.state ?? evolution.state;
-      console.info("[evolution] advanced to", targetStage);
+      console.info('[evolution] advanced to', targetStage);
     }
   }, [evolution.state, requirementSnapshot, tryEvolve]);
 
   const experiencePercent = Math.round(evolution.experience);
-  const nextStageLabel =
-    stageIndex >= 0
-      ? `Evolution Stage ${stageIndex + 1}/${STAGE_SEQUENCE.length}`
-      : "Evolution";
+  const nextStageLabel = stageIndex >= 0 ? `Evolution Stage ${stageIndex + 1}/${STAGE_SEQUENCE.length}` : 'Evolution';
   const accent = visuals.colors[1] ?? visuals.colors[0];
-  const tertiary =
-    visuals.colors[visuals.colors.length - 1] ?? visuals.colors[0];
+  const tertiary = visuals.colors[visuals.colors.length - 1] ?? visuals.colors[0];
 
   return (
     <div className="space-y-4">
@@ -119,9 +101,7 @@ export function EvolutionPanel() {
           }}
         >
           <Sparkles className="w-4 h-4" style={{ color: visuals.colors[0] }} />
-          <span className="font-bold text-white text-lg">
-            {evolution.state}
-          </span>
+          <span className="font-bold text-white text-lg">{evolution.state}</span>
         </div>
         <p className="text-zinc-400 text-sm">{nextStageLabel}</p>
         <p className="text-zinc-300 text-xs">{stageInfo.tagline}</p>
@@ -152,19 +132,15 @@ export function EvolutionPanel() {
             <Zap className="w-4 h-4" />
             <span>Interactions</span>
           </div>
-          <div className="text-white font-medium text-lg">
-            {evolution.totalInteractions}
-          </div>
+          <div className="text-white font-medium text-lg">{evolution.totalInteractions}</div>
         </div>
       </section>
 
-      {evolution.state !== "SPECIATION" && (
+      {evolution.state !== 'SPECIATION' && (
         <section className="space-y-2">
           <div className="flex justify-between items-center text-sm">
             <span className="text-zinc-400">Next evolution</span>
-            <span className="text-white font-medium">
-              {Math.round(progress)}%
-            </span>
+            <span className="text-white font-medium">{Math.round(progress)}%</span>
           </div>
           <div className="h-3 bg-zinc-800 rounded-full overflow-hidden border border-zinc-700">
             <div
@@ -195,8 +171,8 @@ export function EvolutionPanel() {
               helper={formatRequirementValue(
                 Date.now() - evolution.lastEvolutionTime,
                 requirementSnapshot.requirements.minAge,
-                "time",
-                formatDuration,
+                'time',
+                formatDuration
               )}
               color={visuals.colors[0]}
             />
@@ -206,7 +182,7 @@ export function EvolutionPanel() {
               helper={formatRequirementValue(
                 evolution.totalInteractions,
                 requirementSnapshot.requirements.minInteractions,
-                "number",
+                'number'
               )}
               color={accent}
             />
@@ -216,7 +192,7 @@ export function EvolutionPanel() {
               helper={formatRequirementValue(
                 vitalsAverage,
                 requirementSnapshot.requirements.minVitalsAverage,
-                "number",
+                'number'
               )}
               color={tertiary}
             />
@@ -227,9 +203,7 @@ export function EvolutionPanel() {
                 ) : (
                   <AlertTriangle className="w-4 h-4 text-amber-300" />
                 )}
-                <span className="text-zinc-400">
-                  {requirementSnapshot.requirements.specialDescription}
-                </span>
+                <span className="text-zinc-400">{requirementSnapshot.requirements.specialDescription}</span>
               </div>
             )}
           </div>
@@ -239,13 +213,13 @@ export function EvolutionPanel() {
       <section className="bg-zinc-900/30 border border-zinc-800 rounded-lg p-4 space-y-3 text-xs text-zinc-300">
         <p className="font-semibold text-white text-sm">Stage Focus</p>
         <ul className="list-disc list-inside space-y-1">
-          {stageInfo.focus.map((item) => (
+          {stageInfo.focus.map(item => (
             <li key={item}>{item}</li>
           ))}
         </ul>
       </section>
 
-      {evolution.canEvolve && evolution.state !== "SPECIATION" && (
+      {evolution.canEvolve && evolution.state !== 'SPECIATION' && (
         <section className="space-y-3">
           <div className="bg-emerald-500/10 border border-emerald-500/40 text-emerald-100 text-xs rounded-lg px-3 py-2">
             {nextStageInfo ? nextStageInfo.celebration : stageInfo.celebration}
@@ -282,19 +256,14 @@ function RequirementBar({ label, value, helper, color }: RequirementBarProps) {
   const clampedValue = Math.min(1, Math.max(0, value));
   const width = Math.round(clampedValue * 100);
   const isMet = clampedValue >= 0.999;
-  const helperText =
-    isMet && helper !== "Met" && helper !== "Ready"
-      ? `Met • ${helper}`
-      : helper;
+  const helperText = isMet && helper !== 'Met' && helper !== 'Ready' ? `Met • ${helper}` : helper;
 
   return (
     <div className="space-y-1">
       <div className="flex justify-between text-zinc-400">
         <span>{label}</span>
-        <span
-          className={`text-zinc-300 font-medium ${isMet ? "text-emerald-200" : ""}`}
-        >
-          {isMet && helper === "Met" ? "Met" : helperText}
+        <span className={`text-zinc-300 font-medium ${isMet ? 'text-emerald-200' : ''}`}>
+          {isMet && helper === 'Met' ? 'Met' : helperText}
         </span>
       </div>
       <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
@@ -310,22 +279,22 @@ function RequirementBar({ label, value, helper, color }: RequirementBarProps) {
   );
 }
 
-type RequirementMode = "time" | "number";
+type RequirementMode = 'time' | 'number';
 
 function formatRequirementValue(
   current: number,
   required: number,
   mode: RequirementMode,
-  formatDuration?: (value: number) => string,
+  formatDuration?: (value: number) => string
 ): string {
   if (required <= 0) {
-    return "Ready";
+    return 'Ready';
   }
 
-  if (mode === "time") {
+  if (mode === 'time') {
     const remaining = Math.max(0, required - current);
     if (remaining === 0) {
-      return "Met";
+      return 'Met';
     }
     if (formatDuration) {
       return `${formatDuration(remaining)} left`;

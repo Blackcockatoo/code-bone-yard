@@ -1,28 +1,18 @@
-"use client";
+'use client';
 
-import { memo, useEffect, useMemo, useState } from "react";
-import Image from "next/image";
-import { useStore } from "@/lib/store";
-import { EVOLUTION_VISUALS } from "@/lib/evolution";
-import { getCockatooDataUri } from "@/lib/cockatooSprites";
-import { motion } from "framer-motion";
-import {
-  getBodyShapePath,
-  getGlowEffect,
-  getMoodAnimationParams,
-  getPupilPosition,
-  getMouthPath,
-  getMoodState,
-  type BodyShapeData,
-  type BodyType,
-} from "@/lib/sprite-core/geometry";
+import { memo, useEffect, useMemo, useState } from 'react';
+import Image from 'next/image';
+import { useStore } from '@/lib/store';
+import { EVOLUTION_VISUALS } from '@/lib/evolution';
+import { getCockatooDataUri } from '@/lib/cockatooSprites';
+import { motion } from 'framer-motion';
 
 export const EnhancedPetSprite = memo(function EnhancedPetSprite() {
-  const traits = useStore((s) => s.traits);
-  const vitals = useStore((s) => s.vitals);
-  const evolution = useStore((s) => s.evolution);
-  const lastAction = useStore((s) => s.lastAction);
-  const lastActionAt = useStore((s) => s.lastActionAt);
+  const traits = useStore(s => s.traits);
+  const vitals = useStore(s => s.vitals);
+  const evolution = useStore(s => s.evolution);
+  const lastAction = useStore(s => s.lastAction);
+  const lastActionAt = useStore(s => s.lastActionAt);
 
   const ACTION_WINDOW_MS = 1400;
   const [actionActive, setActionActive] = useState(false);
@@ -36,10 +26,7 @@ export const EnhancedPetSprite = memo(function EnhancedPetSprite() {
     const age = Date.now() - lastActionAt;
     if (age < ACTION_WINDOW_MS) {
       setActionActive(true);
-      const t = setTimeout(
-        () => setActionActive(false),
-        ACTION_WINDOW_MS - age,
-      );
+      const t = setTimeout(() => setActionActive(false), ACTION_WINDOW_MS - age);
       return () => clearTimeout(t);
     } else {
       setActionActive(false);
@@ -48,12 +35,12 @@ export const EnhancedPetSprite = memo(function EnhancedPetSprite() {
 
   const cockatooImages = useMemo(
     () => ({
-      feeding: getCockatooDataUri("feeding"),
-      sleeping: getCockatooDataUri("sleeping"),
-      perched: getCockatooDataUri("perched"),
-      angry: getCockatooDataUri("angry"),
+      feeding: getCockatooDataUri('feeding'),
+      sleeping: getCockatooDataUri('sleeping'),
+      perched: getCockatooDataUri('perched'),
+      angry: getCockatooDataUri('angry'),
     }),
-    [],
+    []
   );
 
   // Determine animation state based on vitals
@@ -65,13 +52,13 @@ export const EnhancedPetSprite = memo(function EnhancedPetSprite() {
   const cockatooSrc = useMemo(() => {
     if (actionActive && lastAction) {
       switch (lastAction) {
-        case "feed":
+        case 'feed':
           return cockatooImages.feeding;
-        case "sleep":
+        case 'sleep':
           return cockatooImages.sleeping;
-        case "play":
+        case 'play':
           return cockatooImages.perched;
-        case "clean":
+        case 'clean':
           return cockatooImages.perched;
       }
     }
@@ -103,110 +90,129 @@ export const EnhancedPetSprite = memo(function EnhancedPetSprite() {
 
   const { physical } = traits;
 
-  // Use sprite-core functions for calculations (memoized for performance)
-  const spriteAnimation = useMemo(
-    () => getMoodAnimationParams(vitals),
-    [vitals.mood, vitals.energy, vitals.hunger],
-  );
+  // Animation variants based on mood
+  const petAnimationVariants = {
+    happy: {
+      y: [0, -8, 0],
+      rotate: [0, 2, -2, 0],
+    },
+    neutral: {
+      y: [0, -3, 0],
+      rotate: [0, 1, -1, 0],
+    },
+    tired: {
+      y: [0, -2, 0],
+      rotate: [0, 0.5, -0.5, 0],
+      opacity: [1, 0.8, 1],
+    },
+    unhappy: {
+      y: [0, -2, 0],
+      rotate: [0, -2, 2, 0],
+    },
+    hungry: {
+      y: [0, -10, 0],
+      scale: [1, 0.95, 1],
+    },
+  };
 
-  const glowEffect = useMemo(() => getGlowEffect(vitals.mood), [vitals.mood]);
-
-  const pupilPositions = useMemo(
-    () => getPupilPosition(vitals.mood),
-    [vitals.mood],
-  );
-
-  const mouthPath = useMemo(() => getMouthPath(vitals.mood), [vitals.mood]);
-
-  const moodState = useMemo(
-    () => getMoodState(vitals),
-    [vitals.mood, vitals.energy, vitals.hunger],
-  );
-
-  // Convert animation params to Framer Motion format
   const getMoodAnimation = () => {
-    const keyframes: any = {
-      y: spriteAnimation.keyframes.y,
-      rotate: spriteAnimation.keyframes.rotate,
+    if (isHappy) return petAnimationVariants.happy;
+    if (isTired) return petAnimationVariants.tired;
+    if (isUnhappy) return petAnimationVariants.unhappy;
+    if (isHungry) return petAnimationVariants.hungry;
+    return petAnimationVariants.neutral;
+  };
+
+  const getBodyShape = () => {
+    const size = physical.size * 80;
+    const baseProps = {
+      fill: physical.primaryColor,
+      stroke: physical.secondaryColor,
+      strokeWidth: 3,
     };
-    if (spriteAnimation.keyframes.scale) {
-      keyframes.scale = spriteAnimation.keyframes.scale;
-    }
-    if (spriteAnimation.keyframes.opacity) {
-      keyframes.opacity = spriteAnimation.keyframes.opacity;
-    }
-    return keyframes;
-  };
 
-  // Use sprite-core to render body shape
-  const bodyShapeData = useMemo(
-    () =>
-      getBodyShapePath(
-        physical.bodyType as BodyType,
-        physical.size,
-        physical.primaryColor,
-        physical.secondaryColor,
-      ),
-    [
-      physical.bodyType,
-      physical.size,
-      physical.primaryColor,
-      physical.secondaryColor,
-    ],
-  );
-
-  const renderBodyShape = (shape: BodyShapeData): JSX.Element => {
-    if (shape.type === "group" && shape.children) {
-      return (
-        <g>
-          {shape.children.map((child, i) => (
-            <g key={i}>{renderBodyShape(child)}</g>
-          ))}
-        </g>
-      );
-    }
-
-    const props = { ...shape.attrs };
-    switch (shape.type) {
-      case "circle":
-        return <circle {...props} />;
-      case "rect":
-        return <rect {...props} />;
-      case "polygon":
-        return <polygon {...props} />;
-      case "ellipse":
-        return <ellipse {...props} />;
+    switch (physical.bodyType) {
+      case 'Spherical':
+        return <circle cx="100" cy="100" r={size} {...baseProps} />;
+      case 'Cubic':
+        return (
+          <rect
+            x={100 - size}
+            y={100 - size}
+            width={size * 2}
+            height={size * 2}
+            {...baseProps}
+          />
+        );
+      case 'Pyramidal':
+        return (
+          <polygon
+            points={`100,${100 - size} ${100 - size},${100 + size} ${100 + size},${100 + size}`}
+            {...baseProps}
+          />
+        );
+      case 'Cylindrical':
+        return (
+          <ellipse
+            cx="100"
+            cy="100"
+            rx={size * 0.6}
+            ry={size * 1.2}
+            {...baseProps}
+          />
+        );
+      case 'Toroidal':
+        return (
+          <g>
+            <circle cx="100" cy="100" r={size} {...baseProps} />
+            <circle
+              cx="100"
+              cy="100"
+              r={size * 0.5}
+              fill="none"
+              stroke={baseProps.stroke}
+              strokeWidth={baseProps.strokeWidth}
+            />
+          </g>
+        );
+      case 'Crystalline':
+        return (
+          <polygon
+            points={`100,${100 - size} ${100 + size * 0.7},${100 - size * 0.3} ${100 + size * 0.5},${100 + size * 0.5} ${100 - size * 0.5},${100 + size * 0.5} ${100 - size * 0.7},${100 - size * 0.3}`}
+            {...baseProps}
+          />
+        );
       default:
-        return <circle {...props} />;
+        return <circle cx="100" cy="100" r={size} {...baseProps} />;
     }
   };
+
+  // Glow effect intensity based on mood
+  const glowIntensity = Math.max(0.2, vitals.mood / 100);
+  const glowColor = isHappy ? '#3b82f6' : isUnhappy ? '#ef4444' : '#8b5cf6';
 
   return (
     <motion.div
       className="w-full h-full flex items-center justify-center relative"
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.6, type: "spring" }}
+      transition={{ duration: 0.6, type: 'spring' }}
     >
       {/* Background glow effect */}
       <motion.div
         className="absolute inset-0 rounded-full blur-3xl"
         style={{
-          background: glowEffect.color,
-          opacity: glowEffect.intensity * 0.3,
+          background: glowColor,
+          opacity: glowIntensity * 0.3,
         }}
         animate={{
           scale: [1, 1.2, 1],
-          opacity: [
-            glowEffect.intensity * 0.2,
-            glowEffect.intensity * 0.4,
-            glowEffect.intensity * 0.2,
-          ],
+          opacity: [glowIntensity * 0.2, glowIntensity * 0.4, glowIntensity * 0.2],
         }}
         transition={{
           duration: 3,
           repeat: Infinity,
-          ease: "easeInOut",
+          ease: 'easeInOut',
         }}
       />
 
@@ -215,22 +221,22 @@ export const EnhancedPetSprite = memo(function EnhancedPetSprite() {
         className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none"
         animate={{
           y:
-            actionActive && lastAction === "play"
+            actionActive && lastAction === 'play'
               ? [-6, 6, -6]
-              : moodState.isHappy
-                ? [-2, 2, -2]
-                : [0, 1.5, 0],
+              : isHappy
+              ? [-2, 2, -2]
+              : [0, 1.5, 0],
           rotate:
-            actionActive && lastAction === "clean"
+            actionActive && lastAction === 'clean'
               ? [0, -6, 6, 0]
-              : moodState.isUnhappy
-                ? [-2, 2, -2]
-                : 0,
+              : isUnhappy
+              ? [-2, 2, -2]
+              : 0,
         }}
         transition={{
-          duration: actionActive ? 0.6 : moodState.isUnhappy ? 0.8 : 3.2,
+          duration: actionActive ? 0.6 : isUnhappy ? 0.8 : 3.2,
           repeat: Infinity,
-          ease: "easeInOut",
+          ease: 'easeInOut',
         }}
       >
         <Image
@@ -249,9 +255,9 @@ export const EnhancedPetSprite = memo(function EnhancedPetSprite() {
         className="w-full h-full max-w-xs relative z-10"
         animate={getMoodAnimation()}
         transition={{
-          duration: spriteAnimation.duration,
+          duration: isHappy ? 1.5 : isTired ? 2.5 : 2,
           repeat: Infinity,
-          ease: "easeInOut",
+          ease: 'easeInOut',
         }}
       >
         {/* Defs for gradients and filters */}
@@ -265,10 +271,7 @@ export const EnhancedPetSprite = memo(function EnhancedPetSprite() {
 
           {/* Mood glow */}
           <filter id="moodGlow">
-            <feGaussianBlur
-              stdDeviation={moodState.isHappy ? "3" : "1"}
-              result="coloredBlur"
-            />
+            <feGaussianBlur stdDeviation={isHappy ? '3' : '1'} result="coloredBlur" />
             <feMerge>
               <feMergeNode in="coloredBlur" />
               <feMergeNode in="SourceGraphic" />
@@ -282,31 +285,18 @@ export const EnhancedPetSprite = memo(function EnhancedPetSprite() {
         </defs>
 
         {/* Shadow */}
-        <ellipse
-          cx="100"
-          cy="180"
-          rx="60"
-          ry="12"
-          fill="black"
-          opacity="0.2"
-          filter="url(#shadow)"
-        />
+        <ellipse cx="100" cy="180" rx="60" ry="12" fill="black" opacity="0.2" filter="url(#shadow)" />
 
         {/* Main body */}
-        <g filter="url(#moodGlow)">{renderBodyShape(bodyShapeData)}</g>
+        <g filter="url(#moodGlow)">{getBodyShape()}</g>
 
         {/* Glossy shine overlay */}
-        <circle
-          cx="100"
-          cy="100"
-          r={physical.size * 80}
-          fill="url(#petGloss)"
-        />
+        <circle cx="100" cy="100" r={physical.size * 80} fill="url(#petGloss)" />
 
         {/* Eyes - animated based on mood */}
         <motion.g
           animate={{
-            opacity: moodState.isTired ? 0.5 : 1,
+            opacity: isTired ? 0.5 : 1,
           }}
           transition={{ duration: 0.3 }}
         >
@@ -320,8 +310,8 @@ export const EnhancedPetSprite = memo(function EnhancedPetSprite() {
             r="5"
             fill="black"
             animate={{
-              cx: pupilPositions.left.cx,
-              cy: pupilPositions.left.cy,
+              cx: isHappy ? 87 : isUnhappy ? 83 : 85,
+              cy: isHappy ? 88 : isUnhappy ? 92 : 90,
             }}
             transition={{ duration: 0.5 }}
           />
@@ -331,8 +321,8 @@ export const EnhancedPetSprite = memo(function EnhancedPetSprite() {
             r="5"
             fill="black"
             animate={{
-              cx: pupilPositions.right.cx,
-              cy: pupilPositions.right.cy,
+              cx: isHappy ? 117 : isUnhappy ? 113 : 115,
+              cy: isHappy ? 88 : isUnhappy ? 92 : 90,
             }}
             transition={{ duration: 0.5 }}
           />
@@ -340,19 +330,29 @@ export const EnhancedPetSprite = memo(function EnhancedPetSprite() {
 
         {/* Mouth - changes based on mood */}
         <motion.path
-          d={mouthPath}
+          d={
+            isHappy
+              ? 'M 90 110 Q 100 120 110 110' // Smile
+              : isUnhappy
+                ? 'M 90 115 Q 100 110 110 115' // Frown
+                : 'M 90 112 L 110 112' // Neutral
+          }
           stroke={physical.secondaryColor}
           strokeWidth="2"
           fill="none"
           strokeLinecap="round"
           animate={{
-            d: mouthPath,
+            d: isHappy
+              ? 'M 90 110 Q 100 120 110 110'
+              : isUnhappy
+                ? 'M 90 115 Q 100 110 110 115'
+                : 'M 90 112 L 110 112',
           }}
           transition={{ duration: 0.5 }}
         />
 
         {/* Mood particles for happy state */}
-        {moodState.isHappy && (
+        {isHappy && (
           <>
             {[...Array(3)].map((_, i) => (
               <motion.circle
@@ -377,7 +377,7 @@ export const EnhancedPetSprite = memo(function EnhancedPetSprite() {
         )}
 
         {/* Tired particles (z's) */}
-        {moodState.isTired && (
+        {isTired && (
           <>
             {[...Array(2)].map((_, i) => (
               <motion.text

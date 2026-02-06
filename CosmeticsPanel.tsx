@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useStore } from "@/lib/store";
-import { Button } from "./ui/button";
-import { Sparkles, Crown, Eye, Zap } from "lucide-react";
+import { useState } from 'react';
+import { useStore } from '@/lib/store';
+import { Button } from './ui/button';
+import { Sparkles, Crown, Eye, Zap } from 'lucide-react';
 import {
   COSMETICS_CATALOG,
   getCosmeticsByCategory,
   checkUnlockConditions,
   type Cosmetic,
-} from "@/lib/cosmetics";
+} from '@/lib/cosmetics';
 
 const CATEGORY_ICONS = {
   accessory: Crown,
@@ -19,19 +19,18 @@ const CATEGORY_ICONS = {
 };
 
 const RARITY_COLORS = {
-  common: "text-zinc-400 border-zinc-600",
-  rare: "text-blue-400 border-blue-600",
-  epic: "text-purple-400 border-purple-600",
-  legendary: "text-amber-400 border-amber-600",
+  common: 'text-zinc-400 border-zinc-600',
+  rare: 'text-blue-400 border-blue-600',
+  epic: 'text-purple-400 border-purple-600',
+  legendary: 'text-amber-400 border-amber-600',
 };
 
 export function CosmeticsPanel() {
-  const [selectedCategory, setSelectedCategory] =
-    useState<Cosmetic["category"]>("accessory");
-  const evolution = useStore((s) => s.evolution);
-  const battle = useStore((s) => s.battle);
-  const vimana = useStore((s) => s.vimana);
-  const miniGames = useStore((s) => s.miniGames);
+  const [selectedCategory, setSelectedCategory] = useState<Cosmetic['category']>('accessory');
+  const evolution = useStore(s => s.evolution);
+  const battle = useStore(s => s.battle);
+  const vimana = useStore(s => s.vimana);
+  const miniGames = useStore(s => s.miniGames);
 
   // Mock breeding state (should be in store)
   const breeding = { offspringCount: 0 };
@@ -50,19 +49,12 @@ export function CosmeticsPanel() {
     breeding,
   });
 
-  const cosmetics = getCosmeticsByCategory(selectedCategory).map(
-    (cosmetic) => ({
-      ...cosmetic,
-      unlocked: unlockedIds.includes(cosmetic.id),
-    }),
-  );
+  const cosmetics = getCosmeticsByCategory(selectedCategory).map(cosmetic => ({
+    ...cosmetic,
+    unlocked: unlockedIds.includes(cosmetic.id),
+  }));
 
-  const categories: Cosmetic["category"][] = [
-    "accessory",
-    "aura",
-    "pattern",
-    "effect",
-  ];
+  const categories: Cosmetic['category'][] = ['accessory', 'aura', 'pattern', 'effect'];
 
   return (
     <div className="space-y-4">
@@ -78,10 +70,7 @@ export function CosmeticsPanel() {
         </div>
         <div className="text-xs text-zinc-400 text-right">
           <p>
-            Unlocked:{" "}
-            <span className="text-emerald-300 font-semibold">
-              {unlockedIds.length}
-            </span>
+            Unlocked: <span className="text-emerald-300 font-semibold">{unlockedIds.length}</span>
             /{COSMETICS_CATALOG.length}
           </p>
         </div>
@@ -89,13 +78,13 @@ export function CosmeticsPanel() {
 
       {/* Category Tabs */}
       <div className="flex gap-2">
-        {categories.map((category) => {
+        {categories.map(category => {
           const Icon = CATEGORY_ICONS[category];
           return (
             <Button
               key={category}
               onClick={() => setSelectedCategory(category)}
-              variant={selectedCategory === category ? "default" : "outline"}
+              variant={selectedCategory === category ? 'default' : 'outline'}
               size="sm"
               className="capitalize"
             >
@@ -108,12 +97,12 @@ export function CosmeticsPanel() {
 
       {/* Cosmetics Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-        {cosmetics.map((cosmetic) => (
+        {cosmetics.map(cosmetic => (
           <div
             key={cosmetic.id}
             className={`
               relative p-4 rounded-lg border-2 transition-all
-              ${cosmetic.unlocked ? "bg-zinc-800/60" : "bg-zinc-900/40 opacity-60"}
+              ${cosmetic.unlocked ? 'bg-zinc-800/60' : 'bg-zinc-900/40 opacity-60'}
               ${RARITY_COLORS[cosmetic.rarity]}
             `}
           >
@@ -121,10 +110,10 @@ export function CosmeticsPanel() {
             <div
               className={`
                 absolute top-2 right-2 px-2 py-0.5 rounded text-[10px] font-bold uppercase
-                ${cosmetic.rarity === "legendary" ? "bg-amber-500/20" : ""}
-                ${cosmetic.rarity === "epic" ? "bg-purple-500/20" : ""}
-                ${cosmetic.rarity === "rare" ? "bg-blue-500/20" : ""}
-                ${cosmetic.rarity === "common" ? "bg-zinc-500/20" : ""}
+                ${cosmetic.rarity === 'legendary' ? 'bg-amber-500/20' : ''}
+                ${cosmetic.rarity === 'epic' ? 'bg-purple-500/20' : ''}
+                ${cosmetic.rarity === 'rare' ? 'bg-blue-500/20' : ''}
+                ${cosmetic.rarity === 'common' ? 'bg-zinc-500/20' : ''}
               `}
             >
               {cosmetic.rarity}
@@ -135,14 +124,11 @@ export function CosmeticsPanel() {
               <div
                 className={`
                   w-16 h-16 rounded-full flex items-center justify-center
-                  ${cosmetic.unlocked ? "bg-zinc-700/60" : "bg-zinc-800/40"}
+                  ${cosmetic.unlocked ? 'bg-zinc-700/60' : 'bg-zinc-800/40'}
                 `}
               >
                 {cosmetic.unlocked ? (
-                  <Sparkles
-                    className="w-8 h-8"
-                    style={{ color: cosmetic.visualData.color }}
-                  />
+                  <Sparkles className="w-8 h-8" style={{ color: cosmetic.visualData.color }} />
                 ) : (
                   <div className="w-8 h-8 rounded bg-zinc-600/40" />
                 )}
@@ -151,12 +137,8 @@ export function CosmeticsPanel() {
 
             {/* Name & Description */}
             <div className="text-center space-y-1">
-              <h3 className="font-semibold text-sm text-white">
-                {cosmetic.name}
-              </h3>
-              <p className="text-xs text-zinc-400 line-clamp-2">
-                {cosmetic.description}
-              </p>
+              <h3 className="font-semibold text-sm text-white">{cosmetic.name}</h3>
+              <p className="text-xs text-zinc-400 line-clamp-2">{cosmetic.description}</p>
             </div>
 
             {/* Unlock Condition */}

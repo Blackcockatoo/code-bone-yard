@@ -6,7 +6,7 @@
 export interface PetVitals {
   health: number; // 0-100
   energy: number; // 0-100
-  mood: number; // 0-100
+  mood: number;   // 0-100
   tickAccumulator: number; // Time elapsed since last full tick (in ms)
   lastTickTime: number; // Timestamp of the last tick
 }

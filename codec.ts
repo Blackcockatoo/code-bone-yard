@@ -3,7 +3,7 @@
  * This module handles the packing and unpacking of the HeptaCode.
  */
 
-const BASE_7_SYMBOLS = "0123456"; // Example base-7 symbols
+const BASE_7_SYMBOLS = '0123456'; // Example base-7 symbols
 
 /**
  * Packs a numerical value into a HeptaCode string.
@@ -12,7 +12,7 @@ const BASE_7_SYMBOLS = "0123456"; // Example base-7 symbols
  */
 export function packHepta(value: number): string {
   // Placeholder for complex base-7, 42-symbol encoding
-  return value.toString(7).padStart(6, "0"); // Simple base-7 encoding placeholder
+  return value.toString(7).padStart(6, '0'); // Simple base-7 encoding placeholder
 }
 
 /**

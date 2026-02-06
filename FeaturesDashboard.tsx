@@ -1,23 +1,22 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { VimanaMap } from "./VimanaMap";
-import { BattleArena } from "./BattleArena";
-import { MiniGamesPanel } from "./MiniGamesPanel";
-import { CosmeticsPanel } from "./CosmeticsPanel";
-import { AchievementsPanel } from "./AchievementsPanel";
-import { PatternRecognitionGame } from "./PatternRecognitionGame";
-import { DreamJournalPanel } from "./DreamJournalPanel";
-import { Map, Swords, Gamepad2, Sparkles, Trophy, Moon } from "lucide-react";
+import { useState } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { VimanaMap } from './VimanaMap';
+import { BattleArena } from './BattleArena';
+import { MiniGamesPanel } from './MiniGamesPanel';
+import { CosmeticsPanel } from './CosmeticsPanel';
+import { AchievementsPanel } from './AchievementsPanel';
+import { PatternRecognitionGame } from './PatternRecognitionGame';
+import { Map, Swords, Gamepad2, Sparkles, Trophy } from 'lucide-react';
 
 export function FeaturesDashboard() {
-  const [activeTab, setActiveTab] = useState("vimana");
+  const [activeTab, setActiveTab] = useState('vimana');
 
   return (
     <div className="w-full max-w-4xl mx-auto">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-6 mb-6">
+        <TabsList className="grid w-full grid-cols-5 mb-6">
           <TabsTrigger value="vimana" className="flex items-center gap-2">
             <Map className="w-4 h-4" />
             <span className="hidden sm:inline">Explore</span>
@@ -29,10 +28,6 @@ export function FeaturesDashboard() {
           <TabsTrigger value="games" className="flex items-center gap-2">
             <Gamepad2 className="w-4 h-4" />
             <span className="hidden sm:inline">Games</span>
-          </TabsTrigger>
-          <TabsTrigger value="dreams" className="flex items-center gap-2">
-            <Moon className="w-4 h-4" />
-            <span className="hidden sm:inline">Dreams</span>
           </TabsTrigger>
           <TabsTrigger value="cosmetics" className="flex items-center gap-2">
             <Sparkles className="w-4 h-4" />
@@ -60,17 +55,11 @@ export function FeaturesDashboard() {
           <div className="bg-zinc-900/80 backdrop-blur rounded-xl p-6 border border-zinc-800">
             <div className="space-y-6">
               <MiniGamesPanel />
-
+              
               <div className="border-t border-zinc-700 pt-6">
                 <PatternRecognitionGame />
               </div>
             </div>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="dreams" className="mt-0">
-          <div className="bg-zinc-900/80 backdrop-blur rounded-xl p-6 border border-zinc-800">
-            <DreamJournalPanel />
           </div>
         </TabsContent>
 

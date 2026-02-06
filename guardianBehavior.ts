@@ -1,1 +1,1 @@
-export * from "../../../shared/auralia/guardianBehavior";
+export * from '../../../shared/auralia/guardianBehavior';
