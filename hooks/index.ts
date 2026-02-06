@@ -1,13 +1,6 @@
 import { useRef } from "react";
 import { usePersistFn } from "./usePersistFn";
 
-// Audio System
-export { useAudio } from "./useAudio";
-export type { UseAudioReturn } from "./useAudio";
-
-// PWA Support
-export { usePWA } from "./usePWA";
-
 export interface UseCompositionReturn<
   T extends HTMLInputElement | HTMLTextAreaElement,
 > {

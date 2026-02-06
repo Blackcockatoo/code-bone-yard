@@ -7,14 +7,14 @@ export interface Achievement {
   id: string;
   name: string;
   description: string;
-  category: "care" | "battle" | "exploration" | "evolution" | "social";
-  tier: "bronze" | "silver" | "gold" | "platinum";
+  category: 'care' | 'battle' | 'exploration' | 'evolution' | 'social';
+  tier: 'bronze' | 'silver' | 'gold' | 'platinum';
   unlocked: boolean;
   unlockedAt?: number;
   progress: number;
   maxProgress: number;
   reward: {
-    type: "cosmetic" | "boost" | "badge";
+    type: 'cosmetic' | 'boost' | 'badge';
     value: string;
   };
 }
@@ -32,199 +32,199 @@ export interface AchievementsState {
 export const ACHIEVEMENTS_CATALOG: Achievement[] = [
   // Care achievements
   {
-    id: "caretaker-novice",
-    name: "Novice Caretaker",
-    description: "Keep vitals above 50 for 1 hour",
-    category: "care",
-    tier: "bronze",
+    id: 'caretaker-novice',
+    name: 'Novice Caretaker',
+    description: 'Keep vitals above 50 for 1 hour',
+    category: 'care',
+    tier: 'bronze',
     unlocked: false,
     progress: 0,
     maxProgress: 60,
-    reward: { type: "boost", value: "vitals_decay_-10%" },
+    reward: { type: 'boost', value: 'vitals_decay_-10%' },
   },
   {
-    id: "caretaker-master",
-    name: "Master Caretaker",
-    description: "Keep vitals above 80 for 24 hours",
-    category: "care",
-    tier: "gold",
+    id: 'caretaker-master',
+    name: 'Master Caretaker',
+    description: 'Keep vitals above 80 for 24 hours',
+    category: 'care',
+    tier: 'gold',
     unlocked: false,
     progress: 0,
     maxProgress: 1440,
-    reward: { type: "cosmetic", value: "halo-sacred" },
+    reward: { type: 'cosmetic', value: 'halo-sacred' },
   },
   {
-    id: "perfect-day",
-    name: "Perfect Day",
-    description: "Maintain all vitals at 100 for 1 hour",
-    category: "care",
-    tier: "platinum",
+    id: 'perfect-day',
+    name: 'Perfect Day',
+    description: 'Maintain all vitals at 100 for 1 hour',
+    category: 'care',
+    tier: 'platinum',
     unlocked: false,
     progress: 0,
     maxProgress: 60,
-    reward: { type: "badge", value: "platinum_caretaker" },
+    reward: { type: 'badge', value: 'platinum_caretaker' },
   },
-
+  
   // Battle achievements
   {
-    id: "first-victory",
-    name: "First Victory",
-    description: "Win your first consciousness battle",
-    category: "battle",
-    tier: "bronze",
+    id: 'first-victory',
+    name: 'First Victory',
+    description: 'Win your first consciousness battle',
+    category: 'battle',
+    tier: 'bronze',
     unlocked: false,
     progress: 0,
     maxProgress: 1,
-    reward: { type: "boost", value: "shield_regen_+5" },
+    reward: { type: 'boost', value: 'shield_regen_+5' },
   },
   {
-    id: "battle-veteran",
-    name: "Battle Veteran",
-    description: "Win 25 battles",
-    category: "battle",
-    tier: "silver",
+    id: 'battle-veteran',
+    name: 'Battle Veteran',
+    description: 'Win 25 battles',
+    category: 'battle',
+    tier: 'silver',
     unlocked: false,
     progress: 0,
     maxProgress: 25,
-    reward: { type: "cosmetic", value: "aura-fire" },
+    reward: { type: 'cosmetic', value: 'aura-fire' },
   },
   {
-    id: "battle-master",
-    name: "Battle Master",
-    description: "Win 100 battles",
-    category: "battle",
-    tier: "gold",
+    id: 'battle-master',
+    name: 'Battle Master',
+    description: 'Win 100 battles',
+    category: 'battle',
+    tier: 'gold',
     unlocked: false,
     progress: 0,
     maxProgress: 100,
-    reward: { type: "cosmetic", value: "effect-quantum" },
+    reward: { type: 'cosmetic', value: 'effect-quantum' },
   },
   {
-    id: "unstoppable",
-    name: "Unstoppable",
-    description: "Win 10 battles in a row",
-    category: "battle",
-    tier: "platinum",
+    id: 'unstoppable',
+    name: 'Unstoppable',
+    description: 'Win 10 battles in a row',
+    category: 'battle',
+    tier: 'platinum',
     unlocked: false,
     progress: 0,
     maxProgress: 10,
-    reward: { type: "badge", value: "unstoppable_champion" },
+    reward: { type: 'badge', value: 'unstoppable_champion' },
   },
-
+  
   // Exploration achievements
   {
-    id: "first-scan",
-    name: "First Scan",
-    description: "Explore your first Vimana cell",
-    category: "exploration",
-    tier: "bronze",
+    id: 'first-scan',
+    name: 'First Scan',
+    description: 'Explore your first Vimana cell',
+    category: 'exploration',
+    tier: 'bronze',
     unlocked: false,
     progress: 0,
     maxProgress: 1,
-    reward: { type: "boost", value: "sample_rate_+10%" },
+    reward: { type: 'boost', value: 'sample_rate_+10%' },
   },
   {
-    id: "field-researcher",
-    name: "Field Researcher",
-    description: "Collect 50 field samples",
-    category: "exploration",
-    tier: "silver",
+    id: 'field-researcher',
+    name: 'Field Researcher',
+    description: 'Collect 50 field samples',
+    category: 'exploration',
+    tier: 'silver',
     unlocked: false,
     progress: 0,
     maxProgress: 50,
-    reward: { type: "cosmetic", value: "horns-crystal" },
+    reward: { type: 'cosmetic', value: 'horns-crystal' },
   },
   {
-    id: "anomaly-hunter",
-    name: "Anomaly Hunter",
-    description: "Resolve 10 anomalies",
-    category: "exploration",
-    tier: "gold",
+    id: 'anomaly-hunter',
+    name: 'Anomaly Hunter',
+    description: 'Resolve 10 anomalies',
+    category: 'exploration',
+    tier: 'gold',
     unlocked: false,
     progress: 0,
     maxProgress: 10,
-    reward: { type: "cosmetic", value: "aura-void" },
+    reward: { type: 'cosmetic', value: 'aura-void' },
   },
   {
-    id: "cartographer",
-    name: "Cartographer",
-    description: "Explore all Vimana cells",
-    category: "exploration",
-    tier: "platinum",
+    id: 'cartographer',
+    name: 'Cartographer',
+    description: 'Explore all Vimana cells',
+    category: 'exploration',
+    tier: 'platinum',
     unlocked: false,
     progress: 0,
     maxProgress: 16,
-    reward: { type: "badge", value: "master_explorer" },
+    reward: { type: 'badge', value: 'master_explorer' },
   },
-
+  
   // Evolution achievements
   {
-    id: "first-evolution",
-    name: "First Evolution",
-    description: "Evolve to NEURO stage",
-    category: "evolution",
-    tier: "bronze",
+    id: 'first-evolution',
+    name: 'First Evolution',
+    description: 'Evolve to NEURO stage',
+    category: 'evolution',
+    tier: 'bronze',
     unlocked: false,
     progress: 0,
     maxProgress: 1,
-    reward: { type: "boost", value: "evolution_speed_+15%" },
+    reward: { type: 'boost', value: 'evolution_speed_+15%' },
   },
   {
-    id: "quantum-being",
-    name: "Quantum Being",
-    description: "Reach QUANTUM stage",
-    category: "evolution",
-    tier: "gold",
+    id: 'quantum-being',
+    name: 'Quantum Being',
+    description: 'Reach QUANTUM stage',
+    category: 'evolution',
+    tier: 'gold',
     unlocked: false,
     progress: 0,
     maxProgress: 1,
-    reward: { type: "cosmetic", value: "pattern-sacred" },
+    reward: { type: 'cosmetic', value: 'pattern-sacred' },
   },
   {
-    id: "speciation",
-    name: "Speciation",
-    description: "Achieve final SPECIATION stage",
-    category: "evolution",
-    tier: "platinum",
+    id: 'speciation',
+    name: 'Speciation',
+    description: 'Achieve final SPECIATION stage',
+    category: 'evolution',
+    tier: 'platinum',
     unlocked: false,
     progress: 0,
     maxProgress: 1,
-    reward: { type: "cosmetic", value: "crown-gold" },
+    reward: { type: 'cosmetic', value: 'crown-gold' },
   },
-
+  
   // Social/Breeding achievements
   {
-    id: "first-offspring",
-    name: "First Offspring",
-    description: "Breed your first offspring",
-    category: "social",
-    tier: "bronze",
+    id: 'first-offspring',
+    name: 'First Offspring',
+    description: 'Breed your first offspring',
+    category: 'social',
+    tier: 'bronze',
     unlocked: false,
     progress: 0,
     maxProgress: 1,
-    reward: { type: "boost", value: "breeding_success_+10%" },
+    reward: { type: 'boost', value: 'breeding_success_+10%' },
   },
   {
-    id: "lineage-keeper",
-    name: "Lineage Keeper",
-    description: "Create a family of 5 offspring",
-    category: "social",
-    tier: "silver",
+    id: 'lineage-keeper',
+    name: 'Lineage Keeper',
+    description: 'Create a family of 5 offspring',
+    category: 'social',
+    tier: 'silver',
     unlocked: false,
     progress: 0,
     maxProgress: 5,
-    reward: { type: "cosmetic", value: "aura-rainbow" },
+    reward: { type: 'cosmetic', value: 'aura-rainbow' },
   },
   {
-    id: "dynasty-founder",
-    name: "Dynasty Founder",
-    description: "Create 20 offspring",
-    category: "social",
-    tier: "gold",
+    id: 'dynasty-founder',
+    name: 'Dynasty Founder',
+    description: 'Create 20 offspring',
+    category: 'social',
+    tier: 'gold',
     unlocked: false,
     progress: 0,
     maxProgress: 20,
-    reward: { type: "badge", value: "dynasty_founder" },
+    reward: { type: 'badge', value: 'dynasty_founder' },
   },
 ];
 
@@ -236,85 +236,69 @@ export function updateAchievementProgress(
   gameState: {
     vitals: { hunger: number; energy: number; mood: number; hygiene: number };
     battle: { wins: number; streak: number };
-    vimana: {
-      totalSamples: number;
-      anomaliesResolved: number;
-      cells: Array<{ explored: boolean }>;
-    };
+    vimana: { totalSamples: number; anomaliesResolved: number; cells: Array<{ explored: boolean }> };
     evolution: { state: string };
     breeding: { offspringCount: number };
-  },
+  }
 ): Achievement[] {
-  return achievements.map((achievement) => {
+  return achievements.map(achievement => {
     if (achievement.unlocked) return achievement;
-
+    
     let newProgress = achievement.progress;
-
+    
     // Update based on achievement ID
     switch (achievement.id) {
-      case "first-victory":
+      case 'first-victory':
         newProgress = gameState.battle.wins > 0 ? 1 : 0;
         break;
-      case "battle-veteran":
+      case 'battle-veteran':
         newProgress = gameState.battle.wins;
         break;
-      case "battle-master":
+      case 'battle-master':
         newProgress = gameState.battle.wins;
         break;
-      case "unstoppable":
+      case 'unstoppable':
         newProgress = gameState.battle.streak;
         break;
-      case "first-scan":
-        newProgress =
-          gameState.vimana.cells.filter((c) => c.explored).length > 0 ? 1 : 0;
+      case 'first-scan':
+        newProgress = gameState.vimana.cells.filter(c => c.explored).length > 0 ? 1 : 0;
         break;
-      case "field-researcher":
+      case 'field-researcher':
         newProgress = gameState.vimana.totalSamples;
         break;
-      case "anomaly-hunter":
+      case 'anomaly-hunter':
         newProgress = gameState.vimana.anomaliesResolved;
         break;
-      case "cartographer":
-        newProgress = gameState.vimana.cells.filter((c) => c.explored).length;
+      case 'cartographer':
+        newProgress = gameState.vimana.cells.filter(c => c.explored).length;
         break;
-      case "first-evolution":
-        newProgress = ["NEURO", "QUANTUM", "SPECIATION"].includes(
-          gameState.evolution.state,
-        )
-          ? 1
-          : 0;
+      case 'first-evolution':
+        newProgress = ['NEURO', 'QUANTUM', 'SPECIATION'].includes(gameState.evolution.state) ? 1 : 0;
         break;
-      case "quantum-being":
-        newProgress = ["QUANTUM", "SPECIATION"].includes(
-          gameState.evolution.state,
-        )
-          ? 1
-          : 0;
+      case 'quantum-being':
+        newProgress = ['QUANTUM', 'SPECIATION'].includes(gameState.evolution.state) ? 1 : 0;
         break;
-      case "speciation":
-        newProgress = gameState.evolution.state === "SPECIATION" ? 1 : 0;
+      case 'speciation':
+        newProgress = gameState.evolution.state === 'SPECIATION' ? 1 : 0;
         break;
-      case "first-offspring":
+      case 'first-offspring':
         newProgress = gameState.breeding.offspringCount > 0 ? 1 : 0;
         break;
-      case "lineage-keeper":
+      case 'lineage-keeper':
         newProgress = gameState.breeding.offspringCount;
         break;
-      case "dynasty-founder":
+      case 'dynasty-founder':
         newProgress = gameState.breeding.offspringCount;
         break;
     }
-
+    
     const unlocked = newProgress >= achievement.maxProgress;
-
+    
     return {
       ...achievement,
       progress: newProgress,
       unlocked,
-      unlockedAt:
-        unlocked && !achievement.unlockedAt
-          ? Date.now()
-          : achievement.unlockedAt,
+      unlockedAt: unlocked && !achievement.unlockedAt ? Date.now() : achievement.unlockedAt,
     };
   });
 }
@@ -322,7 +306,7 @@ export function updateAchievementProgress(
 /**
  * Get achievement points based on tier
  */
-export function getAchievementPoints(tier: Achievement["tier"]): number {
+export function getAchievementPoints(tier: Achievement['tier']): number {
   const points = {
     bronze: 10,
     silver: 25,
@@ -337,15 +321,13 @@ export function getAchievementPoints(tier: Achievement["tier"]): number {
  */
 export function calculateTotalPoints(achievements: Achievement[]): number {
   return achievements
-    .filter((a) => a.unlocked)
+    .filter(a => a.unlocked)
     .reduce((total, a) => total + getAchievementPoints(a.tier), 0);
 }
 
 /**
  * Get achievements by category
  */
-export function getAchievementsByCategory(
-  category: Achievement["category"],
-): Achievement[] {
-  return ACHIEVEMENTS_CATALOG.filter((a) => a.category === category);
+export function getAchievementsByCategory(category: Achievement['category']): Achievement[] {
+  return ACHIEVEMENTS_CATALOG.filter(a => a.category === category);
 }

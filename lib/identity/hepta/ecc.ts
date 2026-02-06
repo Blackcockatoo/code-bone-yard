@@ -11,7 +11,7 @@ const BASE = 7;
  * Pads to 36 digits, then adds 6 parity digits
  */
 export function eccEncode(data: number[]): number[] {
-  if (data.length !== 30) throw new Error("ECC expects 30 data digits");
+  if (data.length !== 30) throw new Error('ECC expects 30 data digits');
 
   // Pad to 36 digits (add 6 zeros)
   const padded = [...data, 0, 0, 0, 0, 0, 0];

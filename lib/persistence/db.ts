@@ -4,13 +4,13 @@
  * Stores pet state, vitals, genome, and evolution data offline.
  */
 
-import type { Vitals } from "@/lib/store";
-import type { Genome, DerivedTraits } from "@/lib/genome";
-import type { EvolutionData } from "@/lib/evolution";
+import type { Vitals } from '@/lib/store';
+import type { Genome, DerivedTraits } from '@/lib/genome';
+import type { EvolutionData } from '@/lib/evolution';
 
-const DB_NAME = "MetaPetDB";
+const DB_NAME = 'MetaPetDB';
 const DB_VERSION = 1;
-const STORE_NAME = "pets";
+const STORE_NAME = 'pets';
 
 export interface PetData {
   id: string;
@@ -46,8 +46,8 @@ export async function initDB(): Promise<IDBDatabase> {
 
       // Create object store for pets
       if (!db.objectStoreNames.contains(STORE_NAME)) {
-        const store = db.createObjectStore(STORE_NAME, { keyPath: "id" });
-        store.createIndex("lastSaved", "lastSaved", { unique: false });
+        const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+        store.createIndex('lastSaved', 'lastSaved', { unique: false });
       }
     };
   });
@@ -60,7 +60,7 @@ export async function savePet(pet: PetData): Promise<void> {
   const db = await initDB();
 
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction([STORE_NAME], "readwrite");
+    const transaction = db.transaction([STORE_NAME], 'readwrite');
     const store = transaction.objectStore(STORE_NAME);
 
     const request = store.put({ ...pet, lastSaved: Date.now() });
@@ -77,7 +77,7 @@ export async function loadPet(id: string): Promise<PetData | null> {
   const db = await initDB();
 
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction([STORE_NAME], "readonly");
+    const transaction = db.transaction([STORE_NAME], 'readonly');
     const store = transaction.objectStore(STORE_NAME);
 
     const request = store.get(id);
@@ -94,7 +94,7 @@ export async function getAllPets(): Promise<PetData[]> {
   const db = await initDB();
 
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction([STORE_NAME], "readonly");
+    const transaction = db.transaction([STORE_NAME], 'readonly');
     const store = transaction.objectStore(STORE_NAME);
 
     const request = store.getAll();
@@ -111,7 +111,7 @@ export async function deletePet(id: string): Promise<void> {
   const db = await initDB();
 
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction([STORE_NAME], "readwrite");
+    const transaction = db.transaction([STORE_NAME], 'readwrite');
     const store = transaction.objectStore(STORE_NAME);
 
     const request = store.delete(id);

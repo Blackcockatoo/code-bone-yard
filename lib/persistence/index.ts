@@ -4,13 +4,13 @@
  * Saves pet state, vitals, genome, and evolution offline
  */
 
-import type { Vitals } from "@/lib/store";
-import type { Genome, DerivedTraits } from "@/lib/genome";
-import type { EvolutionData } from "@/lib/evolution";
+import type { Vitals } from '@/lib/store';
+import type { Genome, DerivedTraits } from '@/lib/genome';
+import type { EvolutionData } from '@/lib/evolution';
 
-const DB_NAME = "MetaPetDB";
+const DB_NAME = 'MetaPetDB';
 const DB_VERSION = 1;
-const STORE_NAME = "pets";
+const STORE_NAME = 'pets';
 
 export interface PetState {
   id: string;
@@ -37,9 +37,9 @@ function openDatabase(): Promise<IDBDatabase> {
       const db = (event.target as IDBOpenDBRequest).result;
 
       if (!db.objectStoreNames.contains(STORE_NAME)) {
-        const objectStore = db.createObjectStore(STORE_NAME, { keyPath: "id" });
-        objectStore.createIndex("createdAt", "createdAt", { unique: false });
-        objectStore.createIndex("lastSaved", "lastSaved", { unique: false });
+        const objectStore = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+        objectStore.createIndex('createdAt', 'createdAt', { unique: false });
+        objectStore.createIndex('lastSaved', 'lastSaved', { unique: false });
       }
     };
   });
@@ -52,7 +52,7 @@ export async function savePetState(petState: PetState): Promise<void> {
   const db = await openDatabase();
 
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction([STORE_NAME], "readwrite");
+    const transaction = db.transaction([STORE_NAME], 'readwrite');
     const store = transaction.objectStore(STORE_NAME);
 
     petState.lastSaved = Date.now();
@@ -72,7 +72,7 @@ export async function loadPetState(id: string): Promise<PetState | null> {
   const db = await openDatabase();
 
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction([STORE_NAME], "readonly");
+    const transaction = db.transaction([STORE_NAME], 'readonly');
     const store = transaction.objectStore(STORE_NAME);
     const request = store.get(id);
 
@@ -90,7 +90,7 @@ export async function getAllPets(): Promise<PetState[]> {
   const db = await openDatabase();
 
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction([STORE_NAME], "readonly");
+    const transaction = db.transaction([STORE_NAME], 'readonly');
     const store = transaction.objectStore(STORE_NAME);
     const request = store.getAll();
 
@@ -108,7 +108,7 @@ export async function deletePetState(id: string): Promise<void> {
   const db = await openDatabase();
 
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction([STORE_NAME], "readwrite");
+    const transaction = db.transaction([STORE_NAME], 'readwrite');
     const store = transaction.objectStore(STORE_NAME);
     const request = store.delete(id);
 
@@ -124,15 +124,15 @@ export async function deletePetState(id: string): Promise<void> {
  */
 export function createAutoSave(
   getPetState: () => PetState,
-  intervalMs = 30000, // 30 seconds
+  intervalMs = 30000 // 30 seconds
 ): () => void {
   const interval = setInterval(async () => {
     try {
       const state = getPetState();
       await savePetState(state);
-      console.log("Auto-saved pet state");
+      console.log('Auto-saved pet state');
     } catch (error) {
-      console.error("Auto-save failed:", error);
+      console.error('Auto-save failed:', error);
     }
   }, intervalMs);
 
@@ -154,13 +154,8 @@ export function importPetFromJSON(json: string): PetState {
   const petState = JSON.parse(json) as PetState;
 
   // Validate structure
-  if (
-    !petState.id ||
-    !petState.vitals ||
-    !petState.genome ||
-    !petState.evolution
-  ) {
-    throw new Error("Invalid pet state JSON");
+  if (!petState.id || !petState.vitals || !petState.genome || !petState.evolution) {
+    throw new Error('Invalid pet state JSON');
   }
 
   return petState;

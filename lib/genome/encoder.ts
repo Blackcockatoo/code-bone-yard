@@ -4,9 +4,9 @@ import {
   verifyGenome as coreVerifyGenome,
   type Genome,
   type GenomeHash,
-} from "@metapet/core/genome";
+} from '@metapet/core/genome';
 
-import { webGenomeCryptoAdapter } from "./webCrypto";
+import { webGenomeCryptoAdapter } from './webCrypto';
 
 export function encodeGenome(primeDNA: string, tailDNA: string) {
   return coreEncodeGenome(primeDNA, tailDNA, webGenomeCryptoAdapter);

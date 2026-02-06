@@ -17,6 +17,6 @@ export {
   type ElementWebSummary,
   type GenomeCryptoAdapter,
   type GenomeHasher,
-} from "@metapet/core/genome";
+} from '@metapet/core/genome';
 
-export { encodeGenome, hashGenome, verifyGenome } from "./encoder";
+export { encodeGenome, hashGenome, verifyGenome } from './encoder';

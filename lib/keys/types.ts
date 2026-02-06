@@ -8,10 +8,10 @@
  * 4. Export Key - Encryption keys for secure backups
  */
 
-export type KeyType = "device" | "unlock" | "pairing" | "export";
+export type KeyType = 'device' | 'unlock' | 'pairing' | 'export';
 
 export interface DeviceKey {
-  type: "device";
+  type: 'device';
   id: string;
   fingerprint: string; // First 16 chars of key hash
   createdAt: number;
@@ -19,7 +19,7 @@ export interface DeviceKey {
 }
 
 export interface UnlockKey {
-  type: "unlock";
+  type: 'unlock';
   id: string;
   code: string; // 16-char alphanumeric code
   unlocks: UnlockTarget[];
@@ -32,26 +32,26 @@ export interface UnlockKey {
 }
 
 export type UnlockTarget =
-  | { type: "cosmetic"; id: string }
-  | { type: "achievement"; id: string }
-  | { type: "feature"; id: string }
-  | { type: "pet"; petId: string }
-  | { type: "evolution"; stage: string };
+  | { type: 'cosmetic'; id: string }
+  | { type: 'achievement'; id: string }
+  | { type: 'feature'; id: string }
+  | { type: 'pet'; petId: string }
+  | { type: 'evolution'; stage: string };
 
 export interface PairingKey {
-  type: "pairing";
+  type: 'pairing';
   id: string;
   code: string; // 8-char pairing code
   deviceFingerprint: string;
   petId: string | null; // Pet to share during pairing
   createdAt: number;
   expiresAt: number; // Pairing keys always expire (5 min default)
-  status: "pending" | "paired" | "expired" | "cancelled";
+  status: 'pending' | 'paired' | 'expired' | 'cancelled';
   pairedWith: string | null; // Fingerprint of paired device
 }
 
 export interface ExportKey {
-  type: "export";
+  type: 'export';
   id: string;
   name: string;
   fingerprint: string;
@@ -94,8 +94,8 @@ export interface EncryptedPayload {
 
 // Unlock codes for special features/cosmetics
 export const BUILTIN_UNLOCK_CODES: Record<string, UnlockTarget[]> = {
-  "METAPET-ALPHA-01": [{ type: "cosmetic", id: "golden-crown" }],
-  "GENESIS-PET-2024": [{ type: "achievement", id: "genesis" }],
-  "VIMANA-EXPLORER": [{ type: "feature", id: "vimana-advanced" }],
-  "QUANTUM-EVOLVE": [{ type: "evolution", stage: "QUANTUM" }],
+  'METAPET-ALPHA-01': [{ type: 'cosmetic', id: 'golden-crown' }],
+  'GENESIS-PET-2024': [{ type: 'achievement', id: 'genesis' }],
+  'VIMANA-EXPLORER': [{ type: 'feature', id: 'vimana-advanced' }],
+  'QUANTUM-EVOLVE': [{ type: 'evolution', stage: 'QUANTUM' }],
 };

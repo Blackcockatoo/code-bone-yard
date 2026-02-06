@@ -1,1 +1,1 @@
-export { decodeGenome, getTraitSummary } from "@metapet/core/genome";
+export { decodeGenome, getTraitSummary } from '@metapet/core/genome';

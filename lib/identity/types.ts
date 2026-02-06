@@ -1,6 +1,6 @@
-export type Vault = "red" | "blue" | "black";
-export type Rotation = "CW" | "CCW";
-export type PrivacyPreset = "stealth" | "standard" | "radiant";
+export type Vault = 'red' | 'blue' | 'black';
+export type Rotation = 'CW' | 'CCW';
+export type PrivacyPreset = 'stealth' | 'standard' | 'radiant';
 
 export interface PrimeTailId {
   vault: Vault;

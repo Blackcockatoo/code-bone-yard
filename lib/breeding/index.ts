@@ -4,28 +4,18 @@
  * Combines two parent genomes to create offspring with inherited traits
  */
 
-import type { Genome, DerivedTraits } from "@/lib/genome";
-import { decodeGenome } from "@/lib/genome";
+import type { Genome, DerivedTraits } from '@/lib/genome';
+import { decodeGenome } from '@/lib/genome';
 
 export interface BreedingResult {
   offspring: Genome;
   traits: DerivedTraits;
   inheritanceMap: {
-    red: "parent1" | "parent2" | "mixed";
-    blue: "parent1" | "parent2" | "mixed";
-    black: "parent1" | "parent2" | "mixed";
+    red: 'parent1' | 'parent2' | 'mixed';
+    blue: 'parent1' | 'parent2' | 'mixed';
+    black: 'parent1' | 'parent2' | 'mixed';
   };
   lineageKey: string;
-}
-
-export interface BreedingOptions {
-  /**
-   * Optional seed for deterministic breeding. If omitted, a seed based on the
-   * parents + mode is used. Set `randomize` to true for non-deterministic runs.
-   */
-  seed?: string;
-  randomize?: boolean;
-  rng?: () => number;
 }
 
 /**
@@ -39,28 +29,23 @@ export interface BreedingOptions {
 export function breedPets(
   parent1: Genome,
   parent2: Genome,
-  mode: "DOMINANT" | "BALANCED" | "MUTATION" = "BALANCED",
-  options: BreedingOptions = {},
+  mode: 'DOMINANT' | 'BALANCED' | 'MUTATION' = 'BALANCED'
 ): BreedingResult {
   const fingerprint = fingerprintParents(parent1, parent2);
-  const rng =
-    options.rng ??
-    (options.randomize
-      ? () => Math.random()
-      : createSeededRng(options.seed ?? `${fingerprint}|${mode}`));
+  const rng = createSeededRng(`${fingerprint}|${mode}`);
 
   let offspring: Genome;
 
   switch (mode) {
-    case "DOMINANT":
+    case 'DOMINANT':
       offspring = breedDominant(parent1, parent2, rng);
       break;
 
-    case "MUTATION":
+    case 'MUTATION':
       offspring = breedWithMutation(parent1, parent2, rng);
       break;
 
-    case "BALANCED":
+    case 'BALANCED':
     default:
       offspring = breedBalanced(parent1, parent2);
       break;
@@ -104,7 +89,7 @@ function breedBalanced(parent1: Genome, parent2: Genome): Genome {
 function breedDominant(
   parent1: Genome,
   parent2: Genome,
-  rng: () => number,
+  rng: () => number
 ): Genome {
   const red60: number[] = [];
   const blue60: number[] = [];
@@ -139,7 +124,7 @@ function breedDominant(
 function breedWithMutation(
   parent1: Genome,
   parent2: Genome,
-  rng: () => number,
+  rng: () => number
 ): Genome {
   // Start with balanced breeding
   const offspring = breedBalanced(parent1, parent2);
@@ -169,28 +154,20 @@ function breedWithMutation(
 function calculateInheritanceMap(
   parent1: Genome,
   parent2: Genome,
-  offspring: Genome,
-): BreedingResult["inheritanceMap"] {
+  offspring: Genome
+): BreedingResult['inheritanceMap'] {
   return {
     red: determineInheritance(parent1.red60, parent2.red60, offspring.red60),
-    blue: determineInheritance(
-      parent1.blue60,
-      parent2.blue60,
-      offspring.blue60,
-    ),
-    black: determineInheritance(
-      parent1.black60,
-      parent2.black60,
-      offspring.black60,
-    ),
+    blue: determineInheritance(parent1.blue60, parent2.blue60, offspring.blue60),
+    black: determineInheritance(parent1.black60, parent2.black60, offspring.black60),
   };
 }
 
 function determineInheritance(
   parent1Genes: number[],
   parent2Genes: number[],
-  offspringGenes: number[],
-): "parent1" | "parent2" | "mixed" {
+  offspringGenes: number[]
+): 'parent1' | 'parent2' | 'mixed' {
   let parent1Matches = 0;
   let parent2Matches = 0;
   let unmatched = 0;
@@ -219,56 +196,45 @@ function determineInheritance(
   const majorityThreshold = Math.floor(total / 2) + 1;
 
   if (parent1Matches >= majorityThreshold && parent1Matches > parent2Matches) {
-    return "parent1";
+    return 'parent1';
   }
 
   if (parent2Matches >= majorityThreshold && parent2Matches > parent1Matches) {
-    return "parent2";
+    return 'parent2';
   }
 
-  if (
-    unmatched === 0 &&
-    parent1Matches === parent2Matches &&
-    parent1Matches > 0
-  ) {
-    return "mixed";
+  if (unmatched === 0 && parent1Matches === parent2Matches && parent1Matches > 0) {
+    return 'mixed';
   }
 
   if (parent1Matches === 0 && parent2Matches === 0) {
-    return "mixed";
+    return 'mixed';
   }
 
   if (parent1Matches === parent2Matches) {
-    return "mixed";
+    return 'mixed';
   }
 
-  if (
-    unmatched > 0 &&
-    parent1Matches < majorityThreshold &&
-    parent2Matches < majorityThreshold
-  ) {
-    return "mixed";
+  if (unmatched > 0 && (parent1Matches < majorityThreshold && parent2Matches < majorityThreshold)) {
+    return 'mixed';
   }
 
-  return parent1Matches > parent2Matches ? "parent1" : "parent2";
+  return parent1Matches > parent2Matches ? 'parent1' : 'parent2';
 }
 
 function fingerprintParents(parent1: Genome, parent2: Genome): string {
-  const serialized = [
-    serializeGenome(parent1),
-    serializeGenome(parent2),
-  ].sort();
-  return serialized.join("|");
+  const serialized = [serializeGenome(parent1), serializeGenome(parent2)].sort();
+  return serialized.join('|');
 }
 
 function serializeGenome(genome: Genome): string {
-  return `${genome.red60.join("")}:${genome.blue60.join("")}:${genome.black60.join("")}`;
+  return `${genome.red60.join('')}:${genome.blue60.join('')}:${genome.black60.join('')}`;
 }
 
 function generateLineageKey(
   fingerprint: string,
-  mode: "DOMINANT" | "BALANCED" | "MUTATION",
-  offspring: Genome,
+  mode: 'DOMINANT' | 'BALANCED' | 'MUTATION',
+  offspring: Genome
 ): string {
   const offspringSignature = serializeGenome(offspring);
   const primary = fnv1a(`${fingerprint}|${mode}|${offspringSignature}`);
@@ -310,7 +276,7 @@ function fnv1a(input: string): string {
     hash ^= input.charCodeAt(i);
     hash = Math.imul(hash, 0x01000193);
   }
-  return (hash >>> 0).toString(16).padStart(8, "0");
+  return (hash >>> 0).toString(16).padStart(8, '0');
 }
 
 /**
@@ -335,10 +301,10 @@ export function calculateSimilarity(genome1: Genome, genome2: Genome): number {
  */
 export function canBreed(
   evolution1State: string,
-  evolution2State: string,
+  evolution2State: string
 ): boolean {
   // Both pets must be at SPECIATION stage to breed
-  return evolution1State === "SPECIATION" && evolution2State === "SPECIATION";
+  return evolution1State === 'SPECIATION' && evolution2State === 'SPECIATION';
 }
 
 /**
@@ -346,38 +312,30 @@ export function canBreed(
  */
 export function predictOffspring(
   parent1: Genome,
-  parent2: Genome,
+  parent2: Genome
 ): { possibleTraits: string[]; confidence: number } {
   const fingerprint = fingerprintParents(parent1, parent2);
 
   // Sample a few potential offspring
   const samples = [
     breedBalanced(parent1, parent2),
-    breedDominant(
-      parent1,
-      parent2,
-      createSeededRng(`${fingerprint}|DOMINANT|preview`),
-    ),
-    breedWithMutation(
-      parent1,
-      parent2,
-      createSeededRng(`${fingerprint}|MUTATION|preview`),
-    ),
+    breedDominant(parent1, parent2, createSeededRng(`${fingerprint}|DOMINANT|preview`)),
+    breedWithMutation(parent1, parent2, createSeededRng(`${fingerprint}|MUTATION|preview`)),
   ];
 
-  const traits = samples.map((s) => decodeGenome(s));
+  const traits = samples.map(s => decodeGenome(s));
 
   const possibleTraits = [
     ...new Set([
-      ...traits.map((t) => t.physical.bodyType),
-      ...traits.map((t) => t.personality.temperament),
-      ...traits.map((t) => t.latent.evolutionPath),
-    ]),
+      ...traits.map(t => t.physical.bodyType),
+      ...traits.map(t => t.personality.temperament),
+      ...traits.map(t => t.latent.evolutionPath),
+    ])
   ];
 
   // Confidence based on parent similarity
   const similarity = calculateSimilarity(parent1, parent2);
-  const confidence = 100 - similarity / 2; // More similar = more predictable
+  const confidence = 100 - (similarity / 2); // More similar = more predictable
 
   return { possibleTraits, confidence };
 }

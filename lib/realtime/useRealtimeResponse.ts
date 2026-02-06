@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef } from 'react';
 import {
   getResponse,
   getIdleResponse,
@@ -6,8 +6,8 @@ import {
   getAnticipatoryResponse,
   getAudioToneForResponse,
   type PetResponse,
-  type ResponseContext,
-} from "@/lib/realtime/responseSystem";
+  type ResponseContext
+} from '@/lib/realtime/responseSystem';
 
 export interface UseRealtimeResponseOptions {
   autoIdleInterval?: number; // milliseconds between idle responses
@@ -17,10 +17,7 @@ export interface UseRealtimeResponseOptions {
   onAudioTrigger?: (digits: number[]) => Promise<void>; // Callback to play audio
 }
 
-export function useRealtimeResponse(
-  context: ResponseContext,
-  options: UseRealtimeResponseOptions = {},
-) {
+export function useRealtimeResponse(context: ResponseContext, options: UseRealtimeResponseOptions = {}) {
   const {
     autoIdleInterval = 8000,
     enableWarnings = true,
@@ -29,9 +26,7 @@ export function useRealtimeResponse(
     onAudioTrigger,
   } = options;
 
-  const [currentResponse, setCurrentResponse] = useState<PetResponse | null>(
-    null,
-  );
+  const [currentResponse, setCurrentResponse] = useState<PetResponse | null>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [responseHistory, setResponseHistory] = useState<PetResponse[]>([]);
   const [consecutiveActionCount, setConsecutiveActionCount] = useState(0);
@@ -39,51 +34,42 @@ export function useRealtimeResponse(
   const lastActionTimeRef = useRef<number>(0);
 
   // Play audio for response if enabled
-  const playResponseAudio = useCallback(
-    async (response: PetResponse) => {
-      if (enableAudio && response.audioTrigger && onAudioTrigger) {
-        const digits = getAudioToneForResponse(response.audioTrigger);
-        if (digits.length > 0) {
-          try {
-            await onAudioTrigger(digits);
-          } catch (error) {
-            console.warn("Failed to play response audio:", error);
-          }
+  const playResponseAudio = useCallback(async (response: PetResponse) => {
+    if (enableAudio && response.audioTrigger && onAudioTrigger) {
+      const digits = getAudioToneForResponse(response.audioTrigger);
+      if (digits.length > 0) {
+        try {
+          await onAudioTrigger(digits);
+        } catch (error) {
+          console.warn('Failed to play response audio:', error);
         }
       }
-    },
-    [enableAudio, onAudioTrigger],
-  );
+    }
+  }, [enableAudio, onAudioTrigger]);
 
   // Handle chain reactions
-  const handleChainReaction = useCallback(
-    (response: PetResponse) => {
-      if (response.chainReaction) {
-        // Delay chain reaction to appear after main response
-        const chainDelay = setTimeout(() => {
-          setCurrentResponse(response.chainReaction!);
-          setIsVisible(true);
-          setResponseHistory((prev) => [
-            response.chainReaction!,
-            ...prev.slice(0, 9),
-          ]);
+  const handleChainReaction = useCallback((response: PetResponse) => {
+    if (response.chainReaction) {
+      // Delay chain reaction to appear after main response
+      const chainDelay = setTimeout(() => {
+        setCurrentResponse(response.chainReaction!);
+        setIsVisible(true);
+        setResponseHistory(prev => [response.chainReaction!, ...prev.slice(0, 9)]);
 
-          // Play audio for chain reaction
-          void playResponseAudio(response.chainReaction!);
+        // Play audio for chain reaction
+        void playResponseAudio(response.chainReaction!);
 
-          // Auto-hide chain reaction
-          const hideTimer = setTimeout(() => {
-            setIsVisible(false);
-          }, response.chainReaction!.duration);
+        // Auto-hide chain reaction
+        const hideTimer = setTimeout(() => {
+          setIsVisible(false);
+        }, response.chainReaction!.duration);
 
-          return () => clearTimeout(hideTimer);
-        }, response.duration);
+        return () => clearTimeout(hideTimer);
+      }, response.duration);
 
-        return () => clearTimeout(chainDelay);
-      }
-    },
-    [playResponseAudio],
-  );
+      return () => clearTimeout(chainDelay);
+    }
+  }, [playResponseAudio]);
 
   // Trigger a response for a specific action
   const triggerResponse = useCallback(
@@ -93,7 +79,7 @@ export function useRealtimeResponse(
       const timeSinceLastAction = now - lastActionTimeRef.current;
 
       if (lastActionRef.current === action && timeSinceLastAction < 10000) {
-        setConsecutiveActionCount((prev) => prev + 1);
+        setConsecutiveActionCount(prev => prev + 1);
       } else {
         setConsecutiveActionCount(1);
       }
@@ -110,7 +96,7 @@ export function useRealtimeResponse(
       const response = getResponse(action, enhancedContext);
       setCurrentResponse(response);
       setIsVisible(true);
-      setResponseHistory((prev) => [response, ...prev.slice(0, 9)]);
+      setResponseHistory(prev => [response, ...prev.slice(0, 9)]);
 
       // Play audio for response
       void playResponseAudio(response);
@@ -136,7 +122,7 @@ export function useRealtimeResponse(
     const response = getIdleResponse(context);
     setCurrentResponse(response);
     setIsVisible(true);
-    setResponseHistory((prev) => [response, ...prev.slice(0, 9)]);
+    setResponseHistory(prev => [response, ...prev.slice(0, 9)]);
 
     // Play audio for idle response
     void playResponseAudio(response);
@@ -156,7 +142,7 @@ export function useRealtimeResponse(
     if (response && !isVisible) {
       setCurrentResponse(response);
       setIsVisible(true);
-      setResponseHistory((prev) => [response, ...prev.slice(0, 9)]);
+      setResponseHistory(prev => [response, ...prev.slice(0, 9)]);
 
       const timer = setTimeout(() => {
         setIsVisible(false);
@@ -171,7 +157,7 @@ export function useRealtimeResponse(
     if (!enableWarnings) return;
 
     const warning = getWarningResponse(context);
-    if (warning && (!currentResponse || currentResponse.type !== "warning")) {
+    if (warning && (!currentResponse || currentResponse.type !== 'warning')) {
       setCurrentResponse(warning);
       setIsVisible(true);
 

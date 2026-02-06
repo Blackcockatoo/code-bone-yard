@@ -18,11 +18,11 @@ import type {
   KeyVerificationResult,
   UnlockTarget,
   EncryptedPayload,
-} from "./types";
-import { BUILTIN_UNLOCK_CODES } from "./types";
+} from './types';
+import { BUILTIN_UNLOCK_CODES } from './types';
 
-const KEY_STORE_KEY = "metapet-key-store";
-const DEVICE_KEY_STORAGE = "metapet-hmac-key";
+const KEY_STORE_KEY = 'metapet-key-store';
+const DEVICE_KEY_STORAGE = 'metapet-hmac-key';
 
 // ============================================================================
 // Utility Functions
@@ -30,9 +30,9 @@ const DEVICE_KEY_STORAGE = "metapet-hmac-key";
 
 function bufToHex(buf: ArrayBuffer): string {
   const arr = new Uint8Array(buf);
-  let hex = "";
+  let hex = '';
   for (let i = 0; i < arr.length; i++) {
-    hex += arr[i].toString(16).padStart(2, "0");
+    hex += arr[i].toString(16).padStart(2, '0');
   }
   return hex;
 }
@@ -47,7 +47,7 @@ function hexToBuf(hex: string): Uint8Array {
 
 function arrayBufferToBase64(buf: ArrayBuffer): string {
   const bytes = new Uint8Array(buf);
-  let binary = "";
+  let binary = '';
   for (let i = 0; i < bytes.length; i++) {
     binary += String.fromCharCode(bytes[i]);
   }
@@ -64,24 +64,24 @@ function base64ToArrayBuffer(base64: string): ArrayBuffer {
 }
 
 function generateId(length = 12): string {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
   const values = new Uint8Array(length);
   crypto.getRandomValues(values);
-  return Array.from(values, (v) => chars[v % chars.length]).join("");
+  return Array.from(values, v => chars[v % chars.length]).join('');
 }
 
 function generateCode(length: number, uppercase = true): string {
   const chars = uppercase
-    ? "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-    : "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
+    ? 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+    : 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
   const values = new Uint8Array(length);
   crypto.getRandomValues(values);
-  return Array.from(values, (v) => chars[v % chars.length]).join("");
+  return Array.from(values, v => chars[v % chars.length]).join('');
 }
 
 async function hashData(data: string): Promise<string> {
   const enc = new TextEncoder();
-  const hash = await crypto.subtle.digest("SHA-256", enc.encode(data));
+  const hash = await crypto.subtle.digest('SHA-256', enc.encode(data));
   return bufToHex(hash);
 }
 
@@ -90,7 +90,7 @@ async function hashData(data: string): Promise<string> {
 // ============================================================================
 
 function getKeyStore(): KeyStore {
-  if (typeof window === "undefined") {
+  if (typeof window === 'undefined') {
     return {
       deviceKey: null,
       unlockKeys: [],
@@ -106,7 +106,7 @@ function getKeyStore(): KeyStore {
       return JSON.parse(stored);
     }
   } catch {
-    console.warn("Failed to load key store");
+    console.warn('Failed to load key store');
   }
 
   return {
@@ -119,12 +119,12 @@ function getKeyStore(): KeyStore {
 }
 
 function saveKeyStore(store: KeyStore): void {
-  if (typeof window === "undefined") return;
+  if (typeof window === 'undefined') return;
 
   try {
     localStorage.setItem(KEY_STORE_KEY, JSON.stringify(store));
   } catch (error) {
-    console.warn("Failed to save key store:", error);
+    console.warn('Failed to save key store:', error);
   }
 }
 
@@ -145,14 +145,14 @@ export async function getDeviceKey(): Promise<DeviceKey> {
   // Generate new device key
   const rawKey = localStorage.getItem(DEVICE_KEY_STORAGE);
   if (!rawKey) {
-    throw new Error("Device HMAC key not initialized");
+    throw new Error('Device HMAC key not initialized');
   }
 
   const fingerprint = (await hashData(rawKey)).slice(0, 16);
   const now = Date.now();
 
   const deviceKey: DeviceKey = {
-    type: "device",
+    type: 'device',
     id: `dev-${generateId(8)}`,
     fingerprint,
     createdAt: now,
@@ -193,7 +193,7 @@ export async function createUnlockKey(options: {
   const now = Date.now();
 
   const unlockKey: UnlockKey = {
-    type: "unlock",
+    type: 'unlock',
     id: `unlk-${generateId(8)}`,
     code,
     unlocks: options.unlocks,
@@ -215,26 +215,23 @@ export async function createUnlockKey(options: {
   };
 }
 
-export async function redeemUnlockKey(
-  code: string,
-): Promise<KeyVerificationResult> {
-  const normalizedCode = code.toUpperCase().replace(/[^A-Z0-9]/g, "");
-  const formattedCode =
-    normalizedCode.match(/.{1,4}/g)?.join("-") ?? normalizedCode;
+export async function redeemUnlockKey(code: string): Promise<KeyVerificationResult> {
+  const normalizedCode = code.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const formattedCode = normalizedCode.match(/.{1,4}/g)?.join('-') ?? normalizedCode;
 
   // Check built-in codes first
   const builtinUnlocks = BUILTIN_UNLOCK_CODES[formattedCode];
   if (builtinUnlocks) {
     const store = getKeyStore();
     if (store.redeemedUnlocks.includes(formattedCode)) {
-      return { valid: false, error: "This code has already been redeemed" };
+      return { valid: false, error: 'This code has already been redeemed' };
     }
 
     store.redeemedUnlocks.push(formattedCode);
     saveKeyStore(store);
 
     const syntheticKey: UnlockKey = {
-      type: "unlock",
+      type: 'unlock',
       id: `builtin-${formattedCode}`,
       code: formattedCode,
       unlocks: builtinUnlocks,
@@ -242,7 +239,7 @@ export async function redeemUnlockKey(
       expiresAt: null,
       maxUses: 1,
       usedCount: 1,
-      createdBy: "system",
+      createdBy: 'system',
       isRedeemed: true,
     };
 
@@ -251,22 +248,22 @@ export async function redeemUnlockKey(
 
   // Check user-created codes
   const store = getKeyStore();
-  const unlockKey = store.unlockKeys.find((k) => k.code === formattedCode);
+  const unlockKey = store.unlockKeys.find(k => k.code === formattedCode);
 
   if (!unlockKey) {
-    return { valid: false, error: "Invalid unlock code" };
+    return { valid: false, error: 'Invalid unlock code' };
   }
 
   if (unlockKey.expiresAt && Date.now() > unlockKey.expiresAt) {
-    return { valid: false, error: "This code has expired" };
+    return { valid: false, error: 'This code has expired' };
   }
 
   if (unlockKey.maxUses !== null && unlockKey.usedCount >= unlockKey.maxUses) {
-    return { valid: false, error: "This code has reached maximum uses" };
+    return { valid: false, error: 'This code has reached maximum uses' };
   }
 
   if (store.redeemedUnlocks.includes(unlockKey.id)) {
-    return { valid: false, error: "You have already redeemed this code" };
+    return { valid: false, error: 'You have already redeemed this code' };
   }
 
   // Redeem the key
@@ -291,30 +288,26 @@ export function getCreatedUnlockKeys(): UnlockKey[] {
 
 const PAIRING_EXPIRY_MS = 5 * 60 * 1000; // 5 minutes
 
-export async function createPairingKey(
-  petId?: string,
-): Promise<KeyGenerationResult> {
+export async function createPairingKey(petId?: string): Promise<KeyGenerationResult> {
   const deviceKey = await getDeviceKey();
   const code = generateCode(8);
   const now = Date.now();
 
   const pairingKey: PairingKey = {
-    type: "pairing",
+    type: 'pairing',
     id: `pair-${generateId(8)}`,
     code,
     deviceFingerprint: deviceKey.fingerprint,
     petId: petId ?? null,
     createdAt: now,
     expiresAt: now + PAIRING_EXPIRY_MS,
-    status: "pending",
+    status: 'pending',
     pairedWith: null,
   };
 
   const store = getKeyStore();
   // Clean up expired pairing keys
-  store.pairingKeys = store.pairingKeys.filter(
-    (k) => k.expiresAt > now || k.status === "paired",
-  );
+  store.pairingKeys = store.pairingKeys.filter(k => k.expiresAt > now || k.status === 'paired');
   store.pairingKeys.push(pairingKey);
   saveKeyStore(store);
 
@@ -324,36 +317,34 @@ export async function createPairingKey(
   };
 }
 
-export async function acceptPairingKey(
-  code: string,
-): Promise<KeyVerificationResult> {
-  const normalizedCode = code.toUpperCase().replace(/[^A-Z0-9]/g, "");
+export async function acceptPairingKey(code: string): Promise<KeyVerificationResult> {
+  const normalizedCode = code.toUpperCase().replace(/[^A-Z0-9]/g, '');
   const deviceKey = await getDeviceKey();
   const store = getKeyStore();
   const now = Date.now();
 
-  const pairingKey = store.pairingKeys.find((k) => k.code === normalizedCode);
+  const pairingKey = store.pairingKeys.find(k => k.code === normalizedCode);
 
   if (!pairingKey) {
-    return { valid: false, error: "Invalid pairing code" };
+    return { valid: false, error: 'Invalid pairing code' };
   }
 
   if (pairingKey.expiresAt < now) {
-    pairingKey.status = "expired";
+    pairingKey.status = 'expired';
     saveKeyStore(store);
-    return { valid: false, error: "This pairing code has expired" };
+    return { valid: false, error: 'This pairing code has expired' };
   }
 
-  if (pairingKey.status !== "pending") {
+  if (pairingKey.status !== 'pending') {
     return { valid: false, error: `Pairing code is ${pairingKey.status}` };
   }
 
   if (pairingKey.deviceFingerprint === deviceKey.fingerprint) {
-    return { valid: false, error: "Cannot pair with yourself" };
+    return { valid: false, error: 'Cannot pair with yourself' };
   }
 
   // Accept pairing
-  pairingKey.status = "paired";
+  pairingKey.status = 'paired';
   pairingKey.pairedWith = deviceKey.fingerprint;
   saveKeyStore(store);
 
@@ -362,13 +353,13 @@ export async function acceptPairingKey(
 
 export function cancelPairingKey(keyId: string): boolean {
   const store = getKeyStore();
-  const pairingKey = store.pairingKeys.find((k) => k.id === keyId);
+  const pairingKey = store.pairingKeys.find(k => k.id === keyId);
 
-  if (!pairingKey || pairingKey.status !== "pending") {
+  if (!pairingKey || pairingKey.status !== 'pending') {
     return false;
   }
 
-  pairingKey.status = "cancelled";
+  pairingKey.status = 'cancelled';
   saveKeyStore(store);
   return true;
 }
@@ -376,36 +367,32 @@ export function cancelPairingKey(keyId: string): boolean {
 export function getActivePairingKeys(): PairingKey[] {
   const store = getKeyStore();
   const now = Date.now();
-  return store.pairingKeys.filter(
-    (k) => k.status === "pending" && k.expiresAt > now,
-  );
+  return store.pairingKeys.filter(k => k.status === 'pending' && k.expiresAt > now);
 }
 
 export function getPairedDevices(): PairingKey[] {
-  return getKeyStore().pairingKeys.filter((k) => k.status === "paired");
+  return getKeyStore().pairingKeys.filter(k => k.status === 'paired');
 }
 
 // ============================================================================
 // Export Keys
 // ============================================================================
 
-export async function createExportKey(
-  name: string,
-): Promise<KeyGenerationResult> {
+export async function createExportKey(name: string): Promise<KeyGenerationResult> {
   // Generate AES-256 key
   const aesKey = await crypto.subtle.generateKey(
-    { name: "AES-GCM", length: 256 },
+    { name: 'AES-GCM', length: 256 },
     true,
-    ["encrypt", "decrypt"],
+    ['encrypt', 'decrypt']
   );
 
-  const rawKey = await crypto.subtle.exportKey("raw", aesKey);
+  const rawKey = await crypto.subtle.exportKey('raw', aesKey);
   const keyHex = bufToHex(rawKey);
   const fingerprint = (await hashData(keyHex)).slice(0, 16);
   const now = Date.now();
 
   const exportKey: ExportKey = {
-    type: "export",
+    type: 'export',
     id: `exp-${generateId(8)}`,
     name,
     fingerprint,
@@ -432,37 +419,34 @@ export async function createExportKey(
   return {
     key: exportKey,
     secret: keyHex,
-    displayCode: fingerprint
-      .toUpperCase()
-      .match(/.{1,4}/g)
-      ?.join("-"),
+    displayCode: fingerprint.toUpperCase().match(/.{1,4}/g)?.join('-'),
   };
 }
 
 export async function encryptWithExportKey(
   keyId: string,
-  data: string,
+  data: string
 ): Promise<EncryptedPayload> {
   const store = getKeyStore();
-  const exportKey = store.exportKeys.find((k) => k.id === keyId);
+  const exportKey = store.exportKeys.find(k => k.id === keyId);
 
   if (!exportKey) {
-    throw new Error("Export key not found");
+    throw new Error('Export key not found');
   }
 
   const rawKeyHex = localStorage.getItem(`metapet-export-key-${keyId}`);
   if (!rawKeyHex) {
-    throw new Error("Export key material not found");
+    throw new Error('Export key material not found');
   }
 
   // Import AES key
   const rawKey = hexToBuf(rawKeyHex);
   const aesKey = await crypto.subtle.importKey(
-    "raw",
+    'raw',
     rawKey.buffer as ArrayBuffer,
-    { name: "AES-GCM", length: 256 },
+    { name: 'AES-GCM', length: 256 },
     false,
-    ["encrypt"],
+    ['encrypt']
   );
 
   // Generate IV
@@ -471,9 +455,9 @@ export async function encryptWithExportKey(
   // Encrypt
   const enc = new TextEncoder();
   const ciphertext = await crypto.subtle.encrypt(
-    { name: "AES-GCM", iv },
+    { name: 'AES-GCM', iv },
     aesKey,
-    enc.encode(data),
+    enc.encode(data)
   );
 
   // Generate MAC
@@ -495,28 +479,28 @@ export async function encryptWithExportKey(
 }
 
 export async function decryptWithExportKey(
-  payload: EncryptedPayload,
+  payload: EncryptedPayload
 ): Promise<string> {
   const rawKeyHex = localStorage.getItem(`metapet-export-key-${payload.keyId}`);
   if (!rawKeyHex) {
-    throw new Error("Export key not found - you may need to import it first");
+    throw new Error('Export key not found - you may need to import it first');
   }
 
   // Verify MAC
   const macData = `${payload.keyId}:${payload.iv}:${payload.ciphertext}`;
   const expectedMac = (await hashData(macData)).slice(0, 32);
   if (payload.mac !== expectedMac) {
-    throw new Error("Data integrity check failed - payload may be corrupted");
+    throw new Error('Data integrity check failed - payload may be corrupted');
   }
 
   // Import AES key
   const rawKey = hexToBuf(rawKeyHex);
   const aesKey = await crypto.subtle.importKey(
-    "raw",
+    'raw',
     rawKey.buffer as ArrayBuffer,
-    { name: "AES-GCM", length: 256 },
+    { name: 'AES-GCM', length: 256 },
     false,
-    ["decrypt"],
+    ['decrypt']
   );
 
   // Decrypt
@@ -524,21 +508,18 @@ export async function decryptWithExportKey(
   const ciphertext = base64ToArrayBuffer(payload.ciphertext);
 
   const plaintext = await crypto.subtle.decrypt(
-    { name: "AES-GCM", iv },
+    { name: 'AES-GCM', iv },
     aesKey,
-    ciphertext,
+    ciphertext
   );
 
   return new TextDecoder().decode(plaintext);
 }
 
-export async function importExportKey(
-  name: string,
-  keyHex: string,
-): Promise<ExportKey> {
+export async function importExportKey(name: string, keyHex: string): Promise<ExportKey> {
   // Validate key
   if (keyHex.length !== 64) {
-    throw new Error("Invalid key format - must be 64 hex characters");
+    throw new Error('Invalid key format - must be 64 hex characters');
   }
 
   const fingerprint = (await hashData(keyHex)).slice(0, 16);
@@ -546,13 +527,13 @@ export async function importExportKey(
 
   // Check if already imported
   const store = getKeyStore();
-  const existing = store.exportKeys.find((k) => k.fingerprint === fingerprint);
+  const existing = store.exportKeys.find(k => k.fingerprint === fingerprint);
   if (existing) {
     return existing;
   }
 
   const exportKey: ExportKey = {
-    type: "export",
+    type: 'export',
     id: `exp-${generateId(8)}`,
     name,
     fingerprint,
@@ -576,10 +557,10 @@ export function getExportKeys(): ExportKey[] {
 
 export function setDefaultExportKey(keyId: string): boolean {
   const store = getKeyStore();
-  const key = store.exportKeys.find((k) => k.id === keyId);
+  const key = store.exportKeys.find(k => k.id === keyId);
   if (!key) return false;
 
-  store.exportKeys.forEach((k) => {
+  store.exportKeys.forEach(k => {
     k.isDefault = k.id === keyId;
   });
   saveKeyStore(store);
@@ -588,7 +569,7 @@ export function setDefaultExportKey(keyId: string): boolean {
 
 export function deleteExportKey(keyId: string): boolean {
   const store = getKeyStore();
-  const index = store.exportKeys.findIndex((k) => k.id === keyId);
+  const index = store.exportKeys.findIndex(k => k.id === keyId);
   if (index === -1) return false;
 
   store.exportKeys.splice(index, 1);
@@ -596,10 +577,7 @@ export function deleteExportKey(keyId: string): boolean {
   localStorage.removeItem(`metapet-export-key-${keyId}`);
 
   // Set new default if needed
-  if (
-    store.exportKeys.length > 0 &&
-    !store.exportKeys.some((k) => k.isDefault)
-  ) {
+  if (store.exportKeys.length > 0 && !store.exportKeys.some(k => k.isDefault)) {
     store.exportKeys[0].isDefault = true;
     saveKeyStore(store);
   }
@@ -629,6 +607,6 @@ export type {
   KeyVerificationResult,
   UnlockTarget,
   EncryptedPayload,
-} from "./types";
+} from './types';
 
-export { BUILTIN_UNLOCK_CODES } from "./types";
+export { BUILTIN_UNLOCK_CODES } from './types';

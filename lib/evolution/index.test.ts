@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   initializeEvolution,
   checkEvolutionEligibility,
@@ -9,15 +9,15 @@ import {
   getNextEvolutionRequirement,
   getRequirementProgress,
   type EvolutionData,
-} from "./index";
-import { EVOLUTION_REQUIREMENTS } from "./types";
+} from './index';
+import { EVOLUTION_REQUIREMENTS } from './types';
 
-describe("Evolution System", () => {
-  describe("initializeEvolution", () => {
-    it("should initialize with GENETICS state", () => {
+describe('Evolution System', () => {
+  describe('initializeEvolution', () => {
+    it('should initialize with GENETICS state', () => {
       const evolution = initializeEvolution();
 
-      expect(evolution.state).toBe("GENETICS");
+      expect(evolution.state).toBe('GENETICS');
       expect(evolution.experience).toBe(0);
       expect(evolution.totalInteractions).toBe(0);
       expect(evolution.canEvolve).toBe(false);
@@ -26,8 +26,8 @@ describe("Evolution System", () => {
     });
   });
 
-  describe("checkEvolutionEligibility", () => {
-    it("should return false when pet is too young", () => {
+  describe('checkEvolutionEligibility', () => {
+    it('should return false when pet is too young', () => {
       const evolution = initializeEvolution();
       const vitalsAverage = 80;
 
@@ -36,9 +36,9 @@ describe("Evolution System", () => {
       expect(canEvolve).toBe(false);
     });
 
-    it("should return false when interactions are insufficient", () => {
+    it('should return false when interactions are insufficient', () => {
       const evolution: EvolutionData = {
-        state: "GENETICS",
+        state: 'GENETICS',
         birthTime: Date.now() - 100_000_000, // Old enough
         lastEvolutionTime: Date.now() - 100_000_000,
         experience: 50,
@@ -55,10 +55,10 @@ describe("Evolution System", () => {
       expect(canEvolve).toBe(false);
     });
 
-    it("should return false when vitals average is too low", () => {
+    it('should return false when vitals average is too low', () => {
       const requirements = EVOLUTION_REQUIREMENTS.NEURO;
       const evolution: EvolutionData = {
-        state: "GENETICS",
+        state: 'GENETICS',
         birthTime: Date.now() - 100_000_000,
         lastEvolutionTime: Date.now() - 100_000_000,
         experience: 50,
@@ -75,14 +75,14 @@ describe("Evolution System", () => {
       expect(canEvolve).toBe(false);
     });
 
-    it("should return true when all requirements are met", () => {
+    it('should return true when all requirements are met', () => {
       const requirements = EVOLUTION_REQUIREMENTS.NEURO;
       const evolution: EvolutionData = {
-        state: "GENETICS",
+        state: 'GENETICS',
         birthTime: Date.now() - 100_000_000,
         lastEvolutionTime: Date.now() - 100_000_000,
         experience: 50,
-        level: 1,
+        level: requirements.minLevel,
         currentLevelXp: 0,
         totalXp: 50,
         totalInteractions: requirements.minInteractions,
@@ -95,9 +95,9 @@ describe("Evolution System", () => {
       expect(canEvolve).toBe(true);
     });
 
-    it("should return false when already at max evolution", () => {
+    it('should return false when already at max evolution', () => {
       const evolution: EvolutionData = {
-        state: "SPECIATION",
+        state: 'SPECIATION',
         birthTime: Date.now() - 100_000_000,
         lastEvolutionTime: Date.now() - 100_000_000,
         experience: 50,
@@ -115,10 +115,10 @@ describe("Evolution System", () => {
     });
   });
 
-  describe("evolvePet", () => {
-    it("should evolve pet to next state", () => {
+  describe('evolvePet', () => {
+    it('should evolve pet to next state', () => {
       const originalEvolution: EvolutionData = {
-        state: "GENETICS",
+        state: 'GENETICS',
         birthTime: Date.now() - 100_000,
         lastEvolutionTime: Date.now() - 100_000,
         experience: 75,
@@ -131,17 +131,15 @@ describe("Evolution System", () => {
 
       const evolved = evolvePet(originalEvolution);
 
-      expect(evolved.state).toBe("NEURO");
+      expect(evolved.state).toBe('NEURO');
       expect(evolved.experience).toBe(0);
       expect(evolved.canEvolve).toBe(false);
-      expect(evolved.lastEvolutionTime).toBeGreaterThan(
-        originalEvolution.lastEvolutionTime,
-      );
+      expect(evolved.lastEvolutionTime).toBeGreaterThan(originalEvolution.lastEvolutionTime);
     });
 
-    it("should not evolve beyond max state", () => {
+    it('should not evolve beyond max state', () => {
       const maxEvolution: EvolutionData = {
-        state: "SPECIATION",
+        state: 'SPECIATION',
         birthTime: Date.now() - 100_000,
         lastEvolutionTime: Date.now() - 50_000,
         experience: 100,
@@ -154,13 +152,13 @@ describe("Evolution System", () => {
 
       const result = evolvePet(maxEvolution);
 
-      expect(result.state).toBe("SPECIATION");
+      expect(result.state).toBe('SPECIATION');
       expect(result).toBe(maxEvolution);
     });
 
-    it("should preserve birthTime and totalInteractions", () => {
+    it('should preserve birthTime and totalInteractions', () => {
       const originalEvolution: EvolutionData = {
-        state: "NEURO",
+        state: 'NEURO',
         birthTime: 1000,
         lastEvolutionTime: 5000,
         experience: 75,
@@ -174,14 +172,12 @@ describe("Evolution System", () => {
       const evolved = evolvePet(originalEvolution);
 
       expect(evolved.birthTime).toBe(originalEvolution.birthTime);
-      expect(evolved.totalInteractions).toBe(
-        originalEvolution.totalInteractions,
-      );
+      expect(evolved.totalInteractions).toBe(originalEvolution.totalInteractions);
     });
   });
 
-  describe("gainExperience", () => {
-    it("should add experience and increment interactions", () => {
+  describe('gainExperience', () => {
+    it('should add experience and increment interactions', () => {
       const evolution = initializeEvolution();
 
       const updated = gainExperience(evolution, 10);
@@ -190,7 +186,7 @@ describe("Evolution System", () => {
       expect(updated.totalInteractions).toBe(1);
     });
 
-    it("should cap experience at 100", () => {
+    it('should cap experience at 100', () => {
       const evolution: EvolutionData = {
         ...initializeEvolution(),
         experience: 95,
@@ -201,7 +197,7 @@ describe("Evolution System", () => {
       expect(updated.experience).toBe(100);
     });
 
-    it("should accumulate interactions correctly", () => {
+    it('should accumulate interactions correctly', () => {
       let evolution = initializeEvolution();
 
       evolution = gainExperience(evolution, 5);
@@ -213,13 +209,13 @@ describe("Evolution System", () => {
     });
   });
 
-  describe("getTimeUntilNextEvolution", () => {
-    it("should return time remaining when not old enough", () => {
+  describe('getTimeUntilNextEvolution', () => {
+    it('should return time remaining when not old enough', () => {
       const requirements = EVOLUTION_REQUIREMENTS.NEURO;
       const timeSince = requirements.minAge - 60_000; // 1 minute short
 
       const evolution: EvolutionData = {
-        state: "GENETICS",
+        state: 'GENETICS',
         birthTime: Date.now() - timeSince,
         lastEvolutionTime: Date.now() - timeSince,
         experience: 50,
@@ -236,9 +232,9 @@ describe("Evolution System", () => {
       expect(timeRemaining).toBeLessThanOrEqual(60_000);
     });
 
-    it("should return 0 when old enough", () => {
+    it('should return 0 when old enough', () => {
       const evolution: EvolutionData = {
-        state: "GENETICS",
+        state: 'GENETICS',
         birthTime: Date.now() - 100_000_000,
         lastEvolutionTime: Date.now() - 100_000_000,
         experience: 50,
@@ -254,9 +250,9 @@ describe("Evolution System", () => {
       expect(timeRemaining).toBe(0);
     });
 
-    it("should return -1 at max evolution", () => {
+    it('should return -1 at max evolution', () => {
       const evolution: EvolutionData = {
-        state: "SPECIATION",
+        state: 'SPECIATION',
         birthTime: Date.now() - 100_000,
         lastEvolutionTime: Date.now() - 50_000,
         experience: 50,
@@ -273,10 +269,10 @@ describe("Evolution System", () => {
     });
   });
 
-  describe("getEvolutionProgress", () => {
-    it("should return 100 when at max evolution", () => {
+  describe('getEvolutionProgress', () => {
+    it('should return 100 when at max evolution', () => {
       const evolution: EvolutionData = {
-        state: "SPECIATION",
+        state: 'SPECIATION',
         birthTime: Date.now() - 100_000,
         lastEvolutionTime: Date.now() - 50_000,
         experience: 50,
@@ -292,9 +288,9 @@ describe("Evolution System", () => {
       expect(progress).toBe(100);
     });
 
-    it("should return progress between 0 and 100", () => {
+    it('should return progress between 0 and 100', () => {
       const evolution: EvolutionData = {
-        state: "GENETICS",
+        state: 'GENETICS',
         birthTime: Date.now() - 100_000,
         lastEvolutionTime: Date.now() - 100_000,
         experience: 25,
@@ -312,10 +308,10 @@ describe("Evolution System", () => {
     });
   });
 
-  describe("getNextEvolutionRequirement", () => {
-    it("should return next state requirements", () => {
+  describe('getNextEvolutionRequirement', () => {
+    it('should return next state requirements', () => {
       const evolution: EvolutionData = {
-        state: "GENETICS",
+        state: 'GENETICS',
         birthTime: Date.now(),
         lastEvolutionTime: Date.now(),
         experience: 0,
@@ -329,13 +325,13 @@ describe("Evolution System", () => {
       const requirement = getNextEvolutionRequirement(evolution);
 
       expect(requirement).not.toBeNull();
-      expect(requirement?.state).toBe("NEURO");
+      expect(requirement?.state).toBe('NEURO');
       expect(requirement?.requirements).toBe(EVOLUTION_REQUIREMENTS.NEURO);
     });
 
-    it("should return null at max evolution", () => {
+    it('should return null at max evolution', () => {
       const evolution: EvolutionData = {
-        state: "SPECIATION",
+        state: 'SPECIATION',
         birthTime: Date.now(),
         lastEvolutionTime: Date.now(),
         experience: 0,
@@ -352,11 +348,11 @@ describe("Evolution System", () => {
     });
   });
 
-  describe("getRequirementProgress", () => {
-    it("should return detailed progress breakdown", () => {
+  describe('getRequirementProgress', () => {
+    it('should return detailed progress breakdown', () => {
       const requirements = EVOLUTION_REQUIREMENTS.NEURO;
       const evolution: EvolutionData = {
-        state: "GENETICS",
+        state: 'GENETICS',
         birthTime: Date.now() - requirements.minAge / 2, // 50% age progress
         lastEvolutionTime: Date.now() - requirements.minAge / 2,
         experience: 50,
@@ -371,15 +367,15 @@ describe("Evolution System", () => {
       const progress = getRequirementProgress(evolution, vitalsAverage);
 
       expect(progress).not.toBeNull();
-      expect(progress?.nextState).toBe("NEURO");
+      expect(progress?.nextState).toBe('NEURO');
       expect(progress?.ageProgress).toBeCloseTo(0.5, 1);
       expect(progress?.interactionsProgress).toBeCloseTo(0.5, 1);
       expect(progress?.vitalsProgress).toBeCloseTo(0.5, 1);
     });
 
-    it("should return null at max evolution", () => {
+    it('should return null at max evolution', () => {
       const evolution: EvolutionData = {
-        state: "SPECIATION",
+        state: 'SPECIATION',
         birthTime: Date.now(),
         lastEvolutionTime: Date.now(),
         experience: 0,

@@ -1,4 +1,4 @@
-import type { HeptaPayload } from "../types";
+import type { HeptaPayload } from '../types';
 
 /**
  * Pack HeptaPayload into 30 base-7 digits + MAC-28 → total 30 data digits
@@ -23,7 +23,7 @@ const VAULT_MAP = { red: 0, blue: 1, black: 2 } as const;
  */
 export async function packPayload(
   payload: HeptaPayload,
-  hmacKey: CryptoKey,
+  hmacKey: CryptoKey
 ): Promise<number[]> {
   // Encode payload to bits
   let bits = 0n;
@@ -37,8 +37,8 @@ export async function packPayload(
   writeBits(payload.version, 3);
   writeBits(PRESET_MAP[payload.preset], 2);
   writeBits(VAULT_MAP[payload.vault], 2);
-  writeBits(payload.rotation === "CW" ? 0 : 1, 1);
-  payload.tail.forEach((t) => writeBits(t & 0x3f, 6)); // 6 bits each
+  writeBits(payload.rotation === 'CW' ? 0 : 1, 1);
+  payload.tail.forEach(t => writeBits(t & 0x3f, 6)); // 6 bits each
   writeBits(payload.epoch13 & 0x1fff, 13);
   writeBits(payload.nonce14 & 0x3fff, 14);
 
@@ -50,11 +50,9 @@ export async function packPayload(
     dataBytes[i] = Number((bits >> BigInt(i * 8)) & 0xffn);
   }
 
-  const mac = await crypto.subtle.sign("HMAC", hmacKey, dataBytes);
+  const mac = await crypto.subtle.sign('HMAC', hmacKey, dataBytes);
   const macU8 = new Uint8Array(mac);
-  const mac28 =
-    (macU8[0] | (macU8[1] << 8) | (macU8[2] << 16) | (macU8[3] << 24)) &
-    0x0fffffff;
+  const mac28 = (macU8[0] | (macU8[1] << 8) | (macU8[2] << 16) | (macU8[3] << 24)) & 0x0fffffff;
 
   writeBits(mac28, 28);
 
@@ -78,7 +76,7 @@ export async function packPayload(
  */
 export async function unpackPayload(
   digits: number[],
-  hmacKey: CryptoKey,
+  hmacKey: CryptoKey
 ): Promise<HeptaPayload | null> {
   if (digits.length !== 30) return null;
 
@@ -122,7 +120,7 @@ export async function unpackPayload(
   writeBits(presetIdx, 2);
   writeBits(vaultIdx, 2);
   writeBits(rotBit, 1);
-  tail.forEach((t) => writeBits(t, 6));
+  tail.forEach(t => writeBits(t, 6));
   writeBits(epoch13, 13);
   writeBits(nonce14, 14);
 
@@ -130,27 +128,25 @@ export async function unpackPayload(
     dataBytes[i] = Number((dataBits >> BigInt(i * 8)) & 0xffn);
   }
 
-  const mac = await crypto.subtle.sign("HMAC", hmacKey, dataBytes);
+  const mac = await crypto.subtle.sign('HMAC', hmacKey, dataBytes);
   const macU8 = new Uint8Array(mac);
-  const computedMac28 =
-    (macU8[0] | (macU8[1] << 8) | (macU8[2] << 16) | (macU8[3] << 24)) &
-    0x0fffffff;
+  const computedMac28 = (macU8[0] | (macU8[1] << 8) | (macU8[2] << 16) | (macU8[3] << 24)) & 0x0fffffff;
 
   if (mac28 !== computedMac28) return null; // MAC mismatch
 
-  const presets: PrivacyPreset[] = ["stealth", "standard", "radiant"];
-  const vaults: Vault[] = ["red", "blue", "black"];
+  const presets: PrivacyPreset[] = ['stealth', 'standard', 'radiant'];
+  const vaults: Vault[] = ['red', 'blue', 'black'];
 
   return {
     version: 1,
     preset: presets[presetIdx],
     vault: vaults[vaultIdx],
-    rotation: rotBit === 0 ? "CW" : "CCW",
+    rotation: rotBit === 0 ? 'CW' : 'CCW',
     tail,
     epoch13,
     nonce14,
   };
 }
 
-type PrivacyPreset = "stealth" | "standard" | "radiant";
-type Vault = "red" | "blue" | "black";
+type PrivacyPreset = 'stealth' | 'standard' | 'radiant';
+type Vault = 'red' | 'blue' | 'black';

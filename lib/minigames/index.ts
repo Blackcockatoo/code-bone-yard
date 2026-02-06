@@ -12,7 +12,7 @@ export interface MiniGamesState {
 }
 
 export interface GameResult {
-  gameType: "memory" | "rhythm" | "vimana";
+  gameType: 'memory' | 'rhythm' | 'vimana';
   score: number;
   isHighScore: boolean;
   reward: {
@@ -27,15 +27,15 @@ export interface GameResult {
  */
 export function playMemoryGame(
   vitals: { mood: number; energy: number },
-  difficulty: number = 1,
+  difficulty: number = 1
 ): GameResult {
   const base = Math.round((vitals.mood + vitals.energy) / 20);
   const difficultyBonus = difficulty * 2;
   const randomFactor = Math.floor(Math.random() * 6);
   const score = Math.max(0, base + difficultyBonus + randomFactor);
-
+  
   return {
-    gameType: "memory",
+    gameType: 'memory',
     score,
     isHighScore: false, // Set by store
     reward: {
@@ -50,15 +50,15 @@ export function playMemoryGame(
  */
 export function playRhythmGame(
   vitals: { energy: number; mood: number },
-  difficulty: number = 1,
+  difficulty: number = 1
 ): GameResult {
   const base = Math.round((vitals.energy * 1.2 + vitals.mood * 0.8) / 20);
   const difficultyBonus = difficulty * 3;
   const randomFactor = Math.floor(Math.random() * 8);
   const score = Math.max(0, base + difficultyBonus + randomFactor);
-
+  
   return {
-    gameType: "rhythm",
+    gameType: 'rhythm',
     score,
     isHighScore: false,
     reward: {
@@ -73,14 +73,14 @@ export function playRhythmGame(
  */
 export function playVimanaGame(
   vitals: { mood: number; hygiene: number },
-  linesCleared: number,
+  linesCleared: number
 ): GameResult {
   const base = Math.round((vitals.mood + vitals.hygiene) / 15);
   const lineBonus = linesCleared * 3;
   const score = Math.max(0, base + lineBonus);
-
+  
   return {
-    gameType: "vimana",
+    gameType: 'vimana',
     score,
     isHighScore: false,
     reward: {
@@ -94,38 +94,32 @@ export function playVimanaGame(
 /**
  * Generate meditation pattern based on genome
  */
-export function generateMeditationPattern(
-  genomeSeed: number,
-  length: number = 6,
-): number[] {
+export function generateMeditationPattern(genomeSeed: number, length: number = 6): number[] {
   const pattern: number[] = [];
   let seed = genomeSeed;
-
+  
   for (let i = 0; i < length; i++) {
     seed = (seed * 1103515245 + 12345) & 0x7fffffff;
     pattern.push(seed % 4); // 0-3 for four directions
   }
-
+  
   return pattern;
 }
 
 /**
  * Check if user input matches pattern
  */
-export function validatePattern(
-  pattern: number[],
-  userInput: number[],
-): {
+export function validatePattern(pattern: number[], userInput: number[]): {
   correct: boolean;
   accuracy: number;
 } {
   if (pattern.length !== userInput.length) {
     return { correct: false, accuracy: 0 };
   }
-
+  
   const matches = pattern.filter((val, idx) => val === userInput[idx]).length;
   const accuracy = (matches / pattern.length) * 100;
-
+  
   return {
     correct: accuracy === 100,
     accuracy,
@@ -142,18 +136,18 @@ export function getDailyBonus(lastPlayedAt: number): {
 } {
   const now = Date.now();
   const hoursSinceLastPlay = (now - lastPlayedAt) / (1000 * 60 * 60);
-
+  
   if (hoursSinceLastPlay >= 24) {
     return {
       hasBonus: true,
       multiplier: 1.5,
-      message: "Daily bonus active! +50% rewards",
+      message: 'Daily bonus active! +50% rewards',
     };
   }
-
+  
   return {
     hasBonus: false,
     multiplier: 1.0,
-    message: "",
+    message: '',
   };
 }

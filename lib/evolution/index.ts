@@ -1,1 +1,1 @@
-export * from "@metapet/core/evolution";
+export * from '@metapet/core/evolution';

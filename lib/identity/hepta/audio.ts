@@ -22,7 +22,7 @@ function getAudioContext(): AudioContext {
   if (!audioContext) {
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     if (!AudioCtx) {
-      throw new Error("Web Audio API unavailable");
+      throw new Error('Web Audio API unavailable');
     }
     audioContext = new AudioCtx();
   }
@@ -58,9 +58,9 @@ export interface PlayHeptaOptions {
 
 export async function playHepta(
   digits: readonly number[],
-  options: PlayHeptaOptions = {},
+  options: PlayHeptaOptions = {}
 ): Promise<void> {
-  if (typeof window === "undefined" || digits.length === 0) return;
+  if (typeof window === 'undefined' || digits.length === 0) return;
 
   const tempo = options.tempo ?? 160;
   const volume = options.volume ?? 0.2;
@@ -69,7 +69,7 @@ export async function playHepta(
   const step = 60 / tempo;
   const ctx = getAudioContext();
 
-  if (ctx.state === "suspended") {
+  if (ctx.state === 'suspended') {
     await ctx.resume().catch(() => undefined);
   }
 
@@ -80,7 +80,7 @@ export async function playHepta(
     const oscillator = ctx.createOscillator();
     const gain = ctx.createGain();
 
-    oscillator.type = "sine";
+    oscillator.type = 'sine';
     oscillator.frequency.value = frequency;
 
     const start = startTime + index * step;

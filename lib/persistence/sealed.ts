@@ -5,11 +5,11 @@
  * Provides tamper-evidence while preserving privacy (DNA never exposed).
  */
 
-import type { PetSaveData } from "./indexeddb";
-import { exportPetToJSON, importPetFromJSON } from "./indexeddb";
+import type { PetSaveData } from './indexeddb';
+import { exportPetToJSON, importPetFromJSON } from './indexeddb';
 
 const SEALED_VERSION = 1;
-const SEALED_SIGNATURE = "METAPET_SEALED_V1";
+const SEALED_SIGNATURE = 'METAPET_SEALED_V1';
 
 export interface SealedExport {
   version: number;
@@ -32,7 +32,7 @@ export interface SealedExport {
  */
 export async function createSealedExport(
   petData: PetSaveData,
-  hmacKey: CryptoKey,
+  hmacKey: CryptoKey
 ): Promise<string> {
   const enc = new TextEncoder();
 
@@ -62,9 +62,9 @@ export async function createSealedExport(
 
   // Generate HMAC signature
   const mac = await crypto.subtle.sign(
-    "HMAC",
+    'HMAC',
     hmacKey,
-    enc.encode(signaturePayload),
+    enc.encode(signaturePayload)
   );
 
   const hmac = arrayBufferToHex(mac);
@@ -90,7 +90,7 @@ export async function createSealedExport(
  */
 export async function importSealedExport(
   sealedJson: string,
-  hmacKey: CryptoKey,
+  hmacKey: CryptoKey
 ): Promise<PetSaveData> {
   const enc = new TextEncoder();
 
@@ -99,7 +99,7 @@ export async function importSealedExport(
 
   // Validate format
   if (sealed.signature !== SEALED_SIGNATURE) {
-    throw new Error("Invalid sealed export: incorrect signature");
+    throw new Error('Invalid sealed export: incorrect signature');
   }
 
   if (sealed.version !== SEALED_VERSION) {
@@ -107,11 +107,11 @@ export async function importSealedExport(
   }
 
   if (!sealed.payload || !sealed.hmac) {
-    throw new Error("Invalid sealed export: missing payload or HMAC");
+    throw new Error('Invalid sealed export: missing payload or HMAC');
   }
 
   if (!sealed.hashes || !sealed.hashes.dnaHash || !sealed.hashes.mirrorHash) {
-    throw new Error("Invalid sealed export: missing crest hashes");
+    throw new Error('Invalid sealed export: missing crest hashes');
   }
 
   // Decode payload early to compare IDs before HMAC verification
@@ -119,14 +119,22 @@ export async function importSealedExport(
   try {
     petJson = atob(sealed.payload);
   } catch {
-    throw new Error("Invalid sealed export: payload is not valid base64");
+    throw new Error('Invalid sealed export: payload is not valid base64');
   }
 
   const petData = importPetFromJSON(petJson);
 
   // Verify pet ID matches the sealed metadata before proceeding
   if (petData.id !== sealed.petId) {
-    throw new Error("Sealed export verification failed: pet ID mismatch");
+    throw new Error('Sealed export verification failed: pet ID mismatch');
+  }
+
+  // Verify crest hashes match the sealed metadata
+  if (petData.crest.dnaHash !== sealed.hashes.dnaHash) {
+    throw new Error('Sealed export verification failed: crest hash mismatch (dnaHash)');
+  }
+  if (petData.crest.mirrorHash !== sealed.hashes.mirrorHash) {
+    throw new Error('Sealed export verification failed: crest hash mismatch (mirrorHash)');
   }
 
   // Reconstruct signature payload (everything except HMAC)
@@ -141,26 +149,15 @@ export async function importSealedExport(
 
   // Verify HMAC signature
   const expectedMac = await crypto.subtle.sign(
-    "HMAC",
+    'HMAC',
     hmacKey,
-    enc.encode(signaturePayload),
+    enc.encode(signaturePayload)
   );
 
   const expectedHmac = arrayBufferToHex(expectedMac);
 
   if (sealed.hmac !== expectedHmac) {
-    throw new Error(
-      "Sealed export verification failed: HMAC mismatch (data may be tampered)",
-    );
-  }
-
-  // Verify crest hashes match the sealed metadata even if signature is valid
-  if (
-    !petData.crest ||
-    petData.crest.dnaHash !== sealed.hashes.dnaHash ||
-    petData.crest.mirrorHash !== sealed.hashes.mirrorHash
-  ) {
-    throw new Error("crest hash mismatch");
+    throw new Error('Sealed export verification failed: HMAC mismatch (data may be tampered)');
   }
 
   return petData;
@@ -172,15 +169,15 @@ export async function importSealedExport(
 export async function downloadSealedExport(
   petData: PetSaveData,
   hmacKey: CryptoKey,
-  filename?: string,
+  filename?: string
 ): Promise<void> {
   const sealed = await createSealedExport(petData, hmacKey);
 
   // Create download
-  const blob = new Blob([sealed], { type: "application/json" });
+  const blob = new Blob([sealed], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
 
-  const a = document.createElement("a");
+  const a = document.createElement('a');
   a.href = url;
   a.download = filename || `metapet-${petData.id}-sealed.json`;
   a.click();
@@ -193,19 +190,14 @@ export async function downloadSealedExport(
  */
 export async function verifySealedExport(
   sealedJson: string,
-  hmacKey: CryptoKey,
-): Promise<{
-  valid: boolean;
-  petId?: string;
-  exportedAt?: number;
-  error?: string;
-}> {
+  hmacKey: CryptoKey
+): Promise<{ valid: boolean; petId?: string; exportedAt?: number; error?: string }> {
   try {
     const enc = new TextEncoder();
     const sealed = JSON.parse(sealedJson) as SealedExport;
 
     if (sealed.signature !== SEALED_SIGNATURE) {
-      return { valid: false, error: "Invalid signature" };
+      return { valid: false, error: 'Invalid signature' };
     }
 
     if (sealed.version !== SEALED_VERSION) {
@@ -219,19 +211,19 @@ export async function verifySealedExport(
       payload: sealed.payload,
       exportedAt: sealed.exportedAt,
       petId: sealed.petId,
-      hashes: sealed.hashes ?? { dnaHash: "", mirrorHash: "" },
+      hashes: sealed.hashes ?? { dnaHash: '', mirrorHash: '' },
     });
 
     const expectedMac = await crypto.subtle.sign(
-      "HMAC",
+      'HMAC',
       hmacKey,
-      enc.encode(signaturePayload),
+      enc.encode(signaturePayload)
     );
 
     const expectedHmac = arrayBufferToHex(expectedMac);
 
     if (sealed.hmac !== expectedHmac) {
-      return { valid: false, error: "HMAC mismatch" };
+      return { valid: false, error: 'HMAC mismatch' };
     }
 
     return {
@@ -242,7 +234,7 @@ export async function verifySealedExport(
   } catch (error) {
     return {
       valid: false,
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: error instanceof Error ? error.message : 'Unknown error',
     };
   }
 }
@@ -251,6 +243,6 @@ export async function verifySealedExport(
 
 function arrayBufferToHex(buffer: ArrayBuffer): string {
   return [...new Uint8Array(buffer)]
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
 }

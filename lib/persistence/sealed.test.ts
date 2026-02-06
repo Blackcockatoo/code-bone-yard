@@ -1,73 +1,63 @@
-import { describe, it, expect, beforeAll } from "vitest";
-import { Buffer } from "node:buffer";
+import { describe, it, expect, beforeAll } from 'vitest';
+import { Buffer } from 'node:buffer';
 import {
   createSealedExport,
   importSealedExport,
   verifySealedExport,
-} from "./sealed";
-import type { PetSaveData } from "./indexeddb";
-import {
-  createDefaultBattleStats,
-  createDefaultMiniGameProgress,
-  createDefaultVimanaState,
-} from "@/lib/progression/types";
+} from './sealed';
+import type { PetSaveData } from './indexeddb';
+import { createDefaultBattleStats, createDefaultMiniGameProgress, createDefaultVimanaState } from '@/lib/progression/types';
 
-describe("Sealed Export/Import", () => {
+describe('Sealed Export/Import', () => {
   let hmacKey: CryptoKey;
   let mockPetData: PetSaveData;
 
   beforeAll(async () => {
     // Generate HMAC key for tests
     hmacKey = await crypto.subtle.generateKey(
-      { name: "HMAC", hash: "SHA-256" },
+      { name: 'HMAC', hash: 'SHA-256' },
       false,
-      ["sign", "verify"],
+      ['sign', 'verify']
     );
 
     // Create mock pet data
     mockPetData = {
-      id: "test-pet-123",
-      name: "Test Pet",
+      id: 'test-pet-123',
+      name: 'Test Pet',
       vitals: {
         hunger: 80,
         hygiene: 70,
         mood: 90,
         energy: 60,
       },
-      petType: "geometric",
+      petType: 'geometric',
       genome: {
-        red60: Array(60)
-          .fill(0)
-          .map((_, i) => i % 7),
-        blue60: Array(60)
-          .fill(0)
-          .map((_, i) => (i * 2) % 7),
-        black60: Array(60)
-          .fill(0)
-          .map((_, i) => (i * 3) % 7),
+        red60: Array(60).fill(0).map((_, i) => i % 7),
+        blue60: Array(60).fill(0).map((_, i) => (i * 2) % 7),
+        black60: Array(60).fill(0).map((_, i) => (i * 3) % 7),
       },
       genomeHash: {
-        redHash: "abc123",
-        blueHash: "def456",
-        blackHash: "ghi789",
+        redHash: 'abc123',
+        blueHash: 'def456',
+        blackHash: 'ghi789',
       },
       traits: {
         physical: {
-          bodyType: "Spherical",
-          primaryColor: "#FF0000",
-          secondaryColor: "#00FF00",
-          pattern: "Stripes",
-          texture: "Smooth",
+          bodyType: 'Spherical',
+          primaryColor: '#FF0000',
+          secondaryColor: '#00FF00',
+          pattern: 'Stripes',
+          texture: 'Smooth',
           size: 50,
           proportions: {
             headRatio: 0.3,
             limbRatio: 0.25,
             tailRatio: 0.2,
           },
-          features: ["Horns"],
+          features: ['Horns'],
         },
         personality: {
-          temperament: "Gentle",
+          temperament: 'Gentle',
           energy: 70,
           social: 80,
           curiosity: 60,
@@ -76,11 +66,11 @@ describe("Sealed Export/Import", () => {
           affection: 80,
           independence: 50,
           loyalty: 85,
-          quirks: ["Loves headpats"],
+          quirks: ['Loves headpats'],
         },
         latent: {
-          evolutionPath: "Harmony Keeper",
-          rareAbilities: ["Telepathy"],
+          evolutionPath: 'Harmony Keeper',
+          rareAbilities: ['Telepathy'],
           potential: {
             physical: 85,
             mental: 90,
@@ -100,7 +90,7 @@ describe("Sealed Export/Import", () => {
         },
       },
       evolution: {
-        state: "GENETICS",
+        state: 'GENETICS',
         birthTime: Date.now() - 86400000,
         lastEvolutionTime: Date.now() - 86400000,
         experience: 100,
@@ -115,21 +105,17 @@ describe("Sealed Export/Import", () => {
       miniGames: createDefaultMiniGameProgress(),
       vimana: createDefaultVimanaState(),
       crest: {
-        vault: "blue",
-        rotation: "CW",
+        vault: 'blue',
+        rotation: 'CW',
         tail: [12, 34, 56, 23],
         coronatedAt: Date.now(),
-        dnaHash: "dna-hash-123",
-        mirrorHash: "mirror-hash-456",
-        signature: "sig-789",
+        dnaHash: 'dna-hash-123',
+        mirrorHash: 'mirror-hash-456',
+        signature: 'sig-789',
       },
-      heptaDigits: Object.freeze(
-        Array(42)
-          .fill(0)
-          .map((_, i) => i % 7),
-      ) as readonly number[] & { length: 42 },
+      heptaDigits: Object.freeze(Array(42).fill(0).map((_, i) => i % 7)) as readonly number[] & { length: 42 },
       mirrorMode: {
-        phase: "idle",
+        phase: 'idle',
         startedAt: null,
         consentExpiresAt: null,
         preset: null,
@@ -141,29 +127,29 @@ describe("Sealed Export/Import", () => {
     };
   });
 
-  describe("createSealedExport", () => {
-    it("should create a valid sealed export", async () => {
+  describe('createSealedExport', () => {
+    it('should create a valid sealed export', async () => {
       const sealed = await createSealedExport(mockPetData, hmacKey);
 
-      expect(sealed).toBeTypeOf("string");
+      expect(sealed).toBeTypeOf('string');
 
       const parsed = JSON.parse(sealed);
       expect(parsed.version).toBe(1);
-      expect(parsed.signature).toBe("METAPET_SEALED_V1");
-      expect(parsed.payload).toBeTypeOf("string");
-      expect(parsed.hmac).toBeTypeOf("string");
-      expect(parsed.petId).toBe("test-pet-123");
-      expect(parsed.exportedAt).toBeTypeOf("number");
+      expect(parsed.signature).toBe('METAPET_SEALED_V1');
+      expect(parsed.payload).toBeTypeOf('string');
+      expect(parsed.hmac).toBeTypeOf('string');
+      expect(parsed.petId).toBe('test-pet-123');
+      expect(parsed.exportedAt).toBeTypeOf('number');
     });
 
-    it("should include HMAC signature", async () => {
+    it('should include HMAC signature', async () => {
       const sealed = await createSealedExport(mockPetData, hmacKey);
       const parsed = JSON.parse(sealed);
 
       expect(parsed.hmac).toMatch(/^[0-9a-f]{64}$/); // 256-bit hex
     });
 
-    it("should encode payload as base64", async () => {
+    it('should encode payload as base64', async () => {
       const sealed = await createSealedExport(mockPetData, hmacKey);
       const parsed = JSON.parse(sealed);
 
@@ -176,8 +162,8 @@ describe("Sealed Export/Import", () => {
     });
   });
 
-  describe("importSealedExport", () => {
-    it("should import a valid sealed export", async () => {
+  describe('importSealedExport', () => {
+    it('should import a valid sealed export', async () => {
       const sealed = await createSealedExport(mockPetData, hmacKey);
       const imported = await importSealedExport(sealed, hmacKey);
 
@@ -187,37 +173,35 @@ describe("Sealed Export/Import", () => {
       expect(imported.genome).toEqual(mockPetData.genome);
     });
 
-    it("should reject tampered data", async () => {
+    it('should reject tampered data', async () => {
       const sealed = await createSealedExport(mockPetData, hmacKey);
       const parsed = JSON.parse(sealed);
 
       // Tamper with payload
-      const tamperedPayload = btoa(
-        JSON.stringify({ ...mockPetData, name: "Hacked Pet" }),
-      );
+      const tamperedPayload = btoa(JSON.stringify({ ...mockPetData, name: 'Hacked Pet' }));
       parsed.payload = tamperedPayload;
 
       const tampered = JSON.stringify(parsed);
 
       await expect(importSealedExport(tampered, hmacKey)).rejects.toThrow(
-        "HMAC mismatch",
+        'HMAC mismatch'
       );
     });
 
-    it("should reject invalid signature", async () => {
+    it('should reject invalid signature', async () => {
       const sealed = await createSealedExport(mockPetData, hmacKey);
       const parsed = JSON.parse(sealed);
 
-      parsed.signature = "INVALID_SIGNATURE";
+      parsed.signature = 'INVALID_SIGNATURE';
 
       const invalid = JSON.stringify(parsed);
 
       await expect(importSealedExport(invalid, hmacKey)).rejects.toThrow(
-        "Invalid sealed export: incorrect signature",
+        'Invalid sealed export: incorrect signature'
       );
     });
 
-    it("should reject unsupported version", async () => {
+    it('should reject unsupported version', async () => {
       const sealed = await createSealedExport(mockPetData, hmacKey);
       const parsed = JSON.parse(sealed);
 
@@ -226,16 +210,16 @@ describe("Sealed Export/Import", () => {
       const invalid = JSON.stringify(parsed);
 
       await expect(importSealedExport(invalid, hmacKey)).rejects.toThrow(
-        "Unsupported sealed export version",
+        'Unsupported sealed export version'
       );
     });
 
-    it("should reject crest hash mismatches even when signed", async () => {
+    it('should reject crest hash mismatches even when signed', async () => {
       const sealed = await createSealedExport(mockPetData, hmacKey);
       const parsed = JSON.parse(sealed);
 
       const payload = JSON.parse(atob(parsed.payload));
-      payload.crest.dnaHash = "tampered-dna-hash";
+      payload.crest.dnaHash = 'tampered-dna-hash';
 
       parsed.payload = btoa(JSON.stringify(payload));
 
@@ -249,26 +233,26 @@ describe("Sealed Export/Import", () => {
       });
 
       const mac = await crypto.subtle.sign(
-        "HMAC",
+        'HMAC',
         hmacKey,
-        new TextEncoder().encode(signaturePayload),
+        new TextEncoder().encode(signaturePayload)
       );
-      parsed.hmac = Buffer.from(mac).toString("hex");
+      parsed.hmac = Buffer.from(mac).toString('hex');
 
       const tampered = JSON.stringify(parsed);
 
       await expect(importSealedExport(tampered, hmacKey)).rejects.toThrow(
-        "crest hash mismatch",
+        'crest hash mismatch'
       );
     });
 
-    it("should reject mismatched pet ID", async () => {
+    it('should reject mismatched pet ID', async () => {
       const sealed = await createSealedExport(mockPetData, hmacKey);
       const parsed = JSON.parse(sealed);
 
       // Tamper with pet ID and recalculate HMAC to pass signature check
-      parsed.petId = "different-id";
-
+      parsed.petId = 'different-id';
+      
       // Recalculate HMAC with tampered petId
       const enc = new TextEncoder();
       const signaturePayload = JSON.stringify({
@@ -278,39 +262,39 @@ describe("Sealed Export/Import", () => {
         exportedAt: parsed.exportedAt,
         petId: parsed.petId,
       });
-
+      
       const mac = await crypto.subtle.sign(
-        "HMAC",
+        'HMAC',
         hmacKey,
-        enc.encode(signaturePayload),
+        enc.encode(signaturePayload)
       );
-
+      
       const hmac = [...new Uint8Array(mac)]
-        .map((b) => b.toString(16).padStart(2, "0"))
-        .join("");
-
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+      
       parsed.hmac = hmac;
 
       const invalid = JSON.stringify(parsed);
 
       await expect(importSealedExport(invalid, hmacKey)).rejects.toThrow(
-        "pet ID mismatch",
+        'pet ID mismatch'
       );
     });
   });
 
-  describe("verifySealedExport", () => {
-    it("should verify valid sealed export", async () => {
+  describe('verifySealedExport', () => {
+    it('should verify valid sealed export', async () => {
       const sealed = await createSealedExport(mockPetData, hmacKey);
       const result = await verifySealedExport(sealed, hmacKey);
 
       expect(result.valid).toBe(true);
-      expect(result.petId).toBe("test-pet-123");
-      expect(result.exportedAt).toBeTypeOf("number");
+      expect(result.petId).toBe('test-pet-123');
+      expect(result.exportedAt).toBeTypeOf('number');
       expect(result.error).toBeUndefined();
     });
 
-    it("should reject tampered export", async () => {
+    it('should reject tampered export', async () => {
       const sealed = await createSealedExport(mockPetData, hmacKey);
       const parsed = JSON.parse(sealed);
 
@@ -322,26 +306,26 @@ describe("Sealed Export/Import", () => {
       const result = await verifySealedExport(tampered, hmacKey);
 
       expect(result.valid).toBe(false);
-      expect(result.error).toBe("HMAC mismatch");
+      expect(result.error).toBe('HMAC mismatch');
     });
 
-    it("should reject invalid format", async () => {
-      const result = await verifySealedExport("invalid json", hmacKey);
+    it('should reject invalid format', async () => {
+      const result = await verifySealedExport('invalid json', hmacKey);
 
       expect(result.valid).toBe(false);
       expect(result.error).toBeDefined();
     });
   });
 
-  describe("Round-trip", () => {
-    it("should preserve all pet data through export/import cycle", async () => {
+  describe('Round-trip', () => {
+    it('should preserve all pet data through export/import cycle', async () => {
       const sealed = await createSealedExport(mockPetData, hmacKey);
       const imported = await importSealedExport(sealed, hmacKey);
 
       expect(imported).toEqual(mockPetData);
     });
 
-    it("should work with multiple exports from same pet", async () => {
+    it('should work with multiple exports from same pet', async () => {
       const sealed1 = await createSealedExport(mockPetData, hmacKey);
       const sealed2 = await createSealedExport(mockPetData, hmacKey);
 
@@ -353,7 +337,7 @@ describe("Sealed Export/Import", () => {
       expect(imported2).toEqual(mockPetData);
     });
 
-    it("should preserve genome arrays", async () => {
+    it('should preserve genome arrays', async () => {
       const sealed = await createSealedExport(mockPetData, hmacKey);
       const imported = await importSealedExport(sealed, hmacKey);
 
@@ -367,10 +351,10 @@ describe("Sealed Export/Import", () => {
     });
   });
 
-  describe("Security", () => {
-    it("should use different HMAC for different data", async () => {
-      const pet1 = { ...mockPetData, id: "pet-1" };
-      const pet2 = { ...mockPetData, id: "pet-2" };
+  describe('Security', () => {
+    it('should use different HMAC for different data', async () => {
+      const pet1 = { ...mockPetData, id: 'pet-1' };
+      const pet2 = { ...mockPetData, id: 'pet-2' };
 
       const sealed1 = await createSealedExport(pet1, hmacKey);
       const sealed2 = await createSealedExport(pet2, hmacKey);
@@ -381,7 +365,7 @@ describe("Sealed Export/Import", () => {
       expect(parsed1.hmac).not.toBe(parsed2.hmac);
     });
 
-    it("should not expose raw DNA in export", async () => {
+    it('should not expose raw DNA in export', async () => {
       const sealed = await createSealedExport(mockPetData, hmacKey);
 
       // Decode the payload to check its contents
